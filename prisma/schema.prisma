@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  password          String
+  name              String
+  role              Role      @default(student)
+  avatarUrl         String?
+  isDeleted         Boolean   @default(false)
+  deletedAt         DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  purchases         CoursePurchase[]
+  progress          Progress[]
+  payments          Payment[]
+  activities        UserActivity[]
+}
+
+enum Role {
+  student
+  admin
+}
+
+model UserActivity {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  date      DateTime
+
+  @@unique([userId, date])
+}
+
+model Course {
+  id            String      @id @default(uuid())
+  title         String
+  slug          String      @unique
+  description   String
+  imageUrl      String
+  isFree        Boolean     @default(false)
+  priceBaht     Int         @default(0)
+  isPublished   Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  categoryId    String
+  category      Category    @relation(fields: [categoryId], references: [id])
+
+  tags          CourseTag[]
+  lessons       Lesson[]
+  purchases     CoursePurchase[]
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  slug      String    @unique
+  icon      String
+
+  courses   Course[]
+}
+
+model CourseTag {
+  courseId      String
+  course        Course    @relation(fields: [courseId], references: [id])
+
+  tagId         String
+  tag           Tag       @relation(fields: [tagId], references: [id])
+
+  @@id([courseId, tagId])
+}
+
+model Tag {
+  id        String    @id @default(uuid())
+  name      String    @unique
+
+  courses   CourseTag[]
+}
+
+model Lesson {
+  id              String      @id @default(uuid())
+  title           String
+  content         String
+  position        Int         @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  courseId        String
+  course        Course      @relation(fields: [courseId], references: [id])
+
+  pdfs            Pdf[]
+
+  progress        Progress[]
+}
+
+model Pdf {
+  id            String      @id @default(uuid())
+  name          String
+  description   String?
+  lessonId      String
+  lesson        Lesson      @relation(fields: [lessonId], references: [id])
+  resourceUrl   String
+  createdAt     DateTime    @default(now())
+}
+
+model Progress {
+  id            String      @id @default(uuid())
+  userId        String
+  lessonId      String
+  isCompleted   Boolean     @default(false)
+  completedAt   DateTime?
+
+  user          User        @relation(fields: [userId], references: [id])
+  lesson        Lesson      @relation(fields: [lessonId], references: [id])
+
+  @@unique([userId, lessonId])
+}
+
+model CoursePurchase {
+  id            String      @id @default(uuid())
+  userId        String
+  courseId      String
+  paid          Boolean     @default(false)
+  paidAt        DateTime?
+  createdAt     DateTime    @default(now())
+
+  user          User        @relation(fields: [userId], references: [id])
+  course        Course      @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
+}
+
+model Payment {
+  id                      String     @id  @default(uuid())
+  userId                  String?
+  stripePaymentIntentId   String?
+  stripeInvoiceId         String?
+  amount                  Int?
+  currency                String?
+  status                  String?
+  createdAt               DateTime  @default(now())
+
+  user                    User?     @relation(fields: [userId], references: [id])
+}
+
+model StripeEvent {
+  id              Int       @id @default(autoincrement())
+  stripeEventId   String    @unique
+  processed       Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+}
