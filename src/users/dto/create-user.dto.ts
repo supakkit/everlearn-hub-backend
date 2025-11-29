@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { $Enums } from '@prisma/client';
 import {
   IsEmail,
   IsNotEmpty,
@@ -25,13 +24,4 @@ export class CreateUserDto {
   @MinLength(6)
   @ApiProperty()
   password: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @ApiProperty()
-  role: $Enums.Role;
-
-  @IsEmail()
-  @ApiProperty({ required: false })
-  avatarUrl?: string;
 }

@@ -18,7 +18,7 @@ model User {
   email             String    @unique
   password          String
   name              String
-  role              Role      @default(student)
+  role              Role      @default(STUDENT)
   avatarUrl         String?
   isDeleted         Boolean   @default(false)
   deletedAt         DateTime?
@@ -32,8 +32,8 @@ model User {
 }
 
 enum Role {
-  student
-  admin
+  STUDENT
+  ADMIN
 }
 
 model UserActivity {

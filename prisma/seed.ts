@@ -16,7 +16,7 @@ async function main() {
       name: 'Student User',
       email: 'student@example.com',
       password: hashedPassword,
-      role: 'student',
+      role: 'STUDENT',
     },
   });
 
@@ -27,7 +27,7 @@ async function main() {
       name: 'Admin User',
       email: 'admin@example.com',
       password: hashedPassword,
-      role: 'admin',
+      role: 'ADMIN',
     },
   });
 

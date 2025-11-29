@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('student', 'admin');
+CREATE TYPE "Role" AS ENUM ('STUDENT', 'ADMIN');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -7,7 +7,7 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "role" "Role" NOT NULL DEFAULT 'student',
+    "role" "Role" NOT NULL DEFAULT 'STUDENT',
     "avatarUrl" TEXT,
     "isDeleted" BOOLEAN NOT NULL DEFAULT false,
     "deletedAt" TIMESTAMP(3),
