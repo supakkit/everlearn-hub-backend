@@ -3,10 +3,9 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
-import { Role } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { CloudinaryFolder } from 'src/common/enums/cloudinary-folder.enum';
-import { UserEntity } from './entities/user.entity';
 
 export const roundsOfHashing = 10;
 
@@ -70,7 +69,7 @@ export class UsersService {
       delete updateUserDto.role;
     }
     const { deleteAvatar, ...dtoData } = updateUserDto;
-    const data: Partial<UserEntity> = { ...dtoData };
+    const data: Partial<User> = { ...dtoData };
 
     if (updateUserDto.password) {
       data.password = await bcrypt.hash(

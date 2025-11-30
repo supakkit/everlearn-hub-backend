@@ -14,7 +14,7 @@ import {
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { UserEntity } from './entities/user.entity';
+import { UserResponse } from './responses/user.response';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import type { AuthRequest } from 'src/common/interfaces/auth-request.interface';
 import { RolesGuard } from 'src/common/guards/roles.guard';
@@ -33,37 +33,37 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @ApiBearerAuth(SwaggerAuth.ADMIN)
-  @ApiOkResponse({ type: UserEntity, isArray: true })
+  @ApiOkResponse({ type: UserResponse, isArray: true })
   async findAll() {
     const users = await this.usersService.findAll();
-    return users.map((user) => new UserEntity(user));
+    return users.map((user) => new UserResponse(user));
   }
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth(SwaggerAuth.USER)
-  @ApiOkResponse({ type: UserEntity })
+  @ApiOkResponse({ type: UserResponse })
   async getProfile(@Request() req: AuthRequest) {
     const user = await this.usersService.findOne(req.user.sub);
     if (!user) throw new NotFoundException('User not found');
-    return new UserEntity(user);
+    return new UserResponse(user);
   }
 
   @Get(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @ApiBearerAuth(SwaggerAuth.ADMIN)
-  @ApiOkResponse({ type: UserEntity })
+  @ApiOkResponse({ type: UserResponse })
   async findOne(@Param('id') id: string) {
     const user = await this.usersService.findOne(id);
     if (!user) throw new NotFoundException('User not found');
-    return new UserEntity(user);
+    return new UserResponse(user);
   }
 
   @Patch('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth(SwaggerAuth.USER)
-  @ApiOkResponse({ type: UserEntity })
+  @ApiOkResponse({ type: UserResponse })
   @UseInterceptors(
     FileInterceptor('avatar', {
       storage: multer.memoryStorage(),
@@ -85,14 +85,14 @@ export class UsersController {
       role,
       avatar,
     );
-    return new UserEntity(user);
+    return new UserResponse(user);
   }
 
   @Patch('id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @ApiBearerAuth(SwaggerAuth.ADMIN)
-  @ApiOkResponse({ type: UserEntity })
+  @ApiOkResponse({ type: UserResponse })
   async updateByAdmin(
     @Request() req: AuthRequest,
     @Body() updateUserDto: UpdateUserDto,
@@ -102,15 +102,15 @@ export class UsersController {
       updateUserDto,
       req.user.role,
     );
-    return new UserEntity(user);
+    return new UserResponse(user);
   }
 
   @Delete('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth(SwaggerAuth.USER)
-  @ApiOkResponse({ type: UserEntity })
+  @ApiOkResponse({ type: UserResponse })
   async delete(@Request() req: AuthRequest) {
     const user = await this.usersService.softDelete(req.user.sub);
-    return new UserEntity(user);
+    return new UserResponse(user);
   }
 }
