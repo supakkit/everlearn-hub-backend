@@ -3,7 +3,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
-import { Role, User } from '@prisma/client';
+import { Prisma, Role } from '@prisma/client';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { CloudinaryFolder } from 'src/common/enums/cloudinary-folder.enum';
 
@@ -69,7 +69,7 @@ export class UsersService {
       delete updateUserDto.role;
     }
     const { deleteAvatar, ...dtoData } = updateUserDto;
-    const data: Partial<User> = { ...dtoData };
+    const data: Prisma.UserUpdateInput = { ...dtoData };
 
     if (updateUserDto.password) {
       data.password = await bcrypt.hash(

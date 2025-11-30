@@ -1,5 +1,6 @@
 const CLOUDINARY_ROOT_FOLDER = 'everlearn-hub';
 
 export enum CloudinaryFolder {
-  AVATAR = `${CLOUDINARY_ROOT_FOLDER}/avatar`,
+  AVATARS = `${CLOUDINARY_ROOT_FOLDER}/avatars`,
+  COURSE_THUMBNAILS = `${CLOUDINARY_ROOT_FOLDER}/course-thumbnails`,
 }
