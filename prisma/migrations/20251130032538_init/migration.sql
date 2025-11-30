@@ -8,7 +8,7 @@ CREATE TABLE "User" (
     "password" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "role" "Role" NOT NULL DEFAULT 'STUDENT',
-    "avatarUrl" TEXT,
+    "avatarPublicId" TEXT,
     "isDeleted" BOOLEAN NOT NULL DEFAULT false,
     "deletedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -32,7 +32,7 @@ CREATE TABLE "Course" (
     "title" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "imageUrl" TEXT NOT NULL,
+    "imagePublicId" TEXT NOT NULL,
     "isFree" BOOLEAN NOT NULL DEFAULT false,
     "priceBaht" INTEGER NOT NULL DEFAULT 0,
     "isPublished" BOOLEAN NOT NULL DEFAULT false,
@@ -88,7 +88,7 @@ CREATE TABLE "Pdf" (
     "name" TEXT NOT NULL,
     "description" TEXT,
     "lessonId" TEXT NOT NULL,
-    "resourceUrl" TEXT NOT NULL,
+    "path" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Pdf_pkey" PRIMARY KEY ("id")

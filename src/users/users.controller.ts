@@ -8,6 +8,8 @@ import {
   UseGuards,
   Request,
   Param,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -19,6 +21,8 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { SwaggerAuth } from 'src/common/enums/swagger-auth.enum';
+import { FileInterceptor } from '@nestjs/platform-express';
+import multer from 'multer';
 
 @Controller('users')
 @ApiTags('users')
@@ -35,7 +39,7 @@ export class UsersController {
     return users.map((user) => new UserEntity(user));
   }
 
-  @Get('profile')
+  @Get('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth(SwaggerAuth.USER)
   @ApiOkResponse({ type: UserEntity })
@@ -56,13 +60,19 @@ export class UsersController {
     return new UserEntity(user);
   }
 
-  @Patch()
+  @Patch('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth(SwaggerAuth.USER)
   @ApiOkResponse({ type: UserEntity })
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      storage: multer.memoryStorage(),
+    }),
+  )
   async update(
     @Request() req: AuthRequest,
     @Body() updateUserDto: UpdateUserDto,
+    @UploadedFile() avatar?: Express.Multer.File,
   ) {
     const { role } = req.user;
     if (role !== Role.ADMIN) {
@@ -73,6 +83,7 @@ export class UsersController {
       req.user.sub,
       updateUserDto,
       role,
+      avatar,
     );
     return new UserEntity(user);
   }
@@ -94,7 +105,7 @@ export class UsersController {
     return new UserEntity(user);
   }
 
-  @Delete()
+  @Delete('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth(SwaggerAuth.USER)
   @ApiOkResponse({ type: UserEntity })

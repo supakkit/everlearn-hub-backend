@@ -2,7 +2,7 @@ import { PartialType } from '@nestjs/swagger';
 import { CreateUserDto } from './create-user.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { $Enums, Role } from '@prisma/client';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEnum, IsOptional } from 'class-validator';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsEnum(Role)
@@ -10,8 +10,8 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @ApiProperty({ required: false })
   role?: $Enums.Role;
 
-  @IsString()
+  @IsBoolean()
   @IsOptional()
   @ApiProperty({ required: false })
-  avatarUrl?: string;
+  deleteAvatar?: boolean;
 }

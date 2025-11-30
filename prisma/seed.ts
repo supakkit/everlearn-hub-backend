@@ -65,7 +65,7 @@ async function main() {
       title: 'Intro to JavaScript',
       slug: 'intro-to-js',
       description: 'Learn JavaScript basics',
-      imageUrl: 'https://picsum.photos/200/300',
+      imagePublicId: 'https://picsum.photos/200/300',
       isFree: true,
       isPublished: true,
       categoryId: cat1.id,
@@ -79,7 +79,7 @@ async function main() {
       title: 'Design Basics',
       slug: 'design-basics',
       description: 'Learn design fundamentals',
-      imageUrl: 'https://picsum.photos/200/300',
+      imagePublicId: 'https://picsum.photos/200/300',
       isFree: false,
       priceBaht: 500,
       isPublished: true,
@@ -120,7 +120,7 @@ async function main() {
     data: {
       name: 'JS Basics PDF',
       lessonId: lesson1.id,
-      resourceUrl: 'https://example.com/js-basics.pdf',
+      path: 'https://example.com/js-basics.pdf',
     },
   });
 
