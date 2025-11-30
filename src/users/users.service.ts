@@ -78,23 +78,23 @@ export class UsersService {
       );
     }
 
-    const currentUser = await this.prisma.user.findUnique({
-      where: { id, isDeleted: false },
-    });
+    if (avatar || deleteAvatar) {
+      const currentUser = await this.prisma.user.findUnique({
+        where: { id, isDeleted: false },
+      });
 
-    if (avatar) {
       if (currentUser?.avatarPublicId) {
         await this.cloudinaryService.deleteImage(currentUser.avatarPublicId);
+        data.avatarPublicId = null;
       }
 
-      const uploaded = await this.cloudinaryService.uploadSingleImage(
-        avatar,
-        CloudinaryFolder.AVATAR,
-      );
-      data.avatarPublicId = uploaded.public_id as string;
-    } else if (deleteAvatar && currentUser?.avatarPublicId) {
-      await this.cloudinaryService.deleteImage(currentUser.avatarPublicId);
-      data.avatarPublicId = null;
+      if (avatar) {
+        const uploaded = await this.cloudinaryService.uploadSingleImage(
+          avatar,
+          CloudinaryFolder.AVATARS,
+        );
+        data.avatarPublicId = uploaded.public_id as string;
+      }
     }
 
     return this.prisma.user.update({ where: { id, isDeleted: false }, data });
