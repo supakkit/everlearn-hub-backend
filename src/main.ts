@@ -2,7 +2,6 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
-import { SwaggerAuth } from './common/enums/swagger-auth.enum';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,24 +13,7 @@ async function bootstrap() {
     .setTitle('EverLearn Hub')
     .setDescription('The EverLearn Hub API')
     .setVersion('0.1')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        description: 'JWT token for authenticated users',
-      },
-      SwaggerAuth.USER,
-    )
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        description: 'JWT token for admin users',
-      },
-      SwaggerAuth.ADMIN,
-    )
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

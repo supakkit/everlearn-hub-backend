@@ -20,7 +20,6 @@ import type { AuthRequest } from 'src/common/interfaces/auth-request.interface';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { SwaggerAuth } from 'src/common/enums/swagger-auth.enum';
 import { FileInterceptor } from '@nestjs/platform-express';
 import multer from 'multer';
 
@@ -32,7 +31,7 @@ export class UsersController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @ApiBearerAuth(SwaggerAuth.ADMIN)
+  @ApiBearerAuth()
   @ApiOkResponse({ type: UserResponse, isArray: true })
   async findAll() {
     const users = await this.usersService.findAll();
@@ -41,7 +40,7 @@ export class UsersController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth(SwaggerAuth.USER)
+  @ApiBearerAuth()
   @ApiOkResponse({ type: UserResponse })
   async getProfile(@Request() req: AuthRequest) {
     const user = await this.usersService.findOne(req.user.sub);
@@ -52,7 +51,7 @@ export class UsersController {
   @Get(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @ApiBearerAuth(SwaggerAuth.ADMIN)
+  @ApiBearerAuth()
   @ApiOkResponse({ type: UserResponse })
   async findOne(@Param('id') id: string) {
     const user = await this.usersService.findOne(id);
@@ -62,7 +61,7 @@ export class UsersController {
 
   @Patch('me')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth(SwaggerAuth.USER)
+  @ApiBearerAuth()
   @ApiOkResponse({ type: UserResponse })
   @UseInterceptors(
     FileInterceptor('avatar', {
@@ -91,7 +90,7 @@ export class UsersController {
   @Patch('id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @ApiBearerAuth(SwaggerAuth.ADMIN)
+  @ApiBearerAuth()
   @ApiOkResponse({ type: UserResponse })
   async updateByAdmin(
     @Request() req: AuthRequest,
@@ -107,7 +106,7 @@ export class UsersController {
 
   @Delete('me')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth(SwaggerAuth.USER)
+  @ApiBearerAuth()
   @ApiOkResponse({ type: UserResponse })
   async delete(@Request() req: AuthRequest) {
     const user = await this.usersService.softDelete(req.user.sub);

@@ -23,7 +23,6 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
-import { SwaggerAuth } from 'src/common/enums/swagger-auth.enum';
 import { CourseResponse } from './responses/course.response';
 import { FileInterceptor } from '@nestjs/platform-express';
 import multer from 'multer';
@@ -35,7 +34,7 @@ export class CoursesController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @ApiBearerAuth(SwaggerAuth.ADMIN)
+  @ApiBearerAuth()
   @ApiCreatedResponse({ type: CourseResponse })
   @UseInterceptors(
     FileInterceptor('courseThumbnail', {
@@ -75,7 +74,7 @@ export class CoursesController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @ApiBearerAuth(SwaggerAuth.ADMIN)
+  @ApiBearerAuth()
   @ApiOkResponse({ type: CourseResponse })
   @UseInterceptors(
     FileInterceptor('courseThumbnail', {
@@ -98,7 +97,7 @@ export class CoursesController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @ApiBearerAuth(SwaggerAuth.ADMIN)
+  @ApiBearerAuth()
   @ApiOkResponse({ type: CourseResponse })
   async remove(@Param('id') id: string) {
     const course = await this.coursesService.remove(id);
