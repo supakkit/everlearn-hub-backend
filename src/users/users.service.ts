@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { Prisma, Role } from '@prisma/client';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { CloudinaryFolder } from 'src/common/enums/cloudinary-folder.enum';
+import { FileType } from 'src/common/enums/cloudinary-filetype.enum';
 
 export const roundsOfHashing = 10;
 
@@ -84,13 +85,17 @@ export class UsersService {
       });
 
       if (currentUser?.avatarPublicId) {
-        await this.cloudinaryService.deleteImage(currentUser.avatarPublicId);
+        await this.cloudinaryService.deleteSingleFile(
+          FileType.IMAGE,
+          currentUser.avatarPublicId,
+        );
         data.avatarPublicId = null;
       }
 
       if (avatar) {
-        const uploaded = await this.cloudinaryService.uploadSingleImage(
+        const uploaded = await this.cloudinaryService.uploadSingleFile(
           avatar,
+          FileType.IMAGE,
           CloudinaryFolder.AVATARS,
         );
         data.avatarPublicId = uploaded.public_id as string;
