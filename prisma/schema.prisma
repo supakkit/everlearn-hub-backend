@@ -96,6 +96,7 @@ model Lesson {
   title           String
   content         String
   position        Int         @default(0)
+  isPreview       Boolean     @default(false)
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
@@ -113,7 +114,7 @@ model Pdf {
   description   String?
   lessonId      String
   lesson        Lesson      @relation(fields: [lessonId], references: [id])
-  path          String
+  publicId      String
   createdAt     DateTime    @default(now())
 }
 

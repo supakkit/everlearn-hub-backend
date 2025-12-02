@@ -6,6 +6,7 @@ import { getSlug } from 'src/common/config/slugify';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { CloudinaryFolder } from 'src/common/enums/cloudinary-folder.enum';
 import { Prisma } from '@prisma/client';
+import { FileType } from 'src/common/enums/cloudinary-filetype.enum';
 
 @Injectable()
 export class CoursesService {
@@ -28,8 +29,9 @@ export class CoursesService {
       throw new ConflictException('Title is already used');
     }
 
-    const uploaded = await this.cloudinaryService.uploadSingleImage(
+    const uploaded = await this.cloudinaryService.uploadSingleFile(
       courseThumbnail,
+      FileType.IMAGE,
       CloudinaryFolder.COURSE_THUMBNAILS,
     );
     const imagePublicId = uploaded.public_id as string;
@@ -90,11 +92,15 @@ export class CoursesService {
       });
 
       if (currentCourse?.imagePublicId) {
-        await this.cloudinaryService.deleteImage(currentCourse.imagePublicId);
+        await this.cloudinaryService.deleteSingleFile(
+          FileType.IMAGE,
+          currentCourse.imagePublicId,
+        );
       }
 
-      const uploaded = await this.cloudinaryService.uploadSingleImage(
+      const uploaded = await this.cloudinaryService.uploadSingleFile(
         courseThumbnail,
+        FileType.IMAGE,
         CloudinaryFolder.COURSE_THUMBNAILS,
       );
       data.imagePublicId = uploaded.public_id as string;

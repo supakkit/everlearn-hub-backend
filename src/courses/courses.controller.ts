@@ -25,7 +25,6 @@ import {
 } from '@nestjs/swagger';
 import { CourseResponse } from './responses/course.response';
 import { FileInterceptor } from '@nestjs/platform-express';
-import multer from 'multer';
 
 @Controller('courses')
 export class CoursesController {
@@ -36,11 +35,7 @@ export class CoursesController {
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
   @ApiCreatedResponse({ type: CourseResponse })
-  @UseInterceptors(
-    FileInterceptor('courseThumbnail', {
-      storage: multer.memoryStorage(),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('courseThumbnail'))
   async create(
     @Body() createCourseDto: CreateCourseDto,
     @UploadedFile() courseThumbnail: Express.Multer.File,
@@ -76,11 +71,7 @@ export class CoursesController {
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
   @ApiOkResponse({ type: CourseResponse })
-  @UseInterceptors(
-    FileInterceptor('courseThumbnail', {
-      storage: multer.memoryStorage(),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('courseThumbnail'))
   async update(
     @Param('id') id: string,
     @Body() updateCourseDto: UpdateCourseDto,

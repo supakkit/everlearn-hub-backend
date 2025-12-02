@@ -103,6 +103,7 @@ async function main() {
       content: 'Introduction to JS variables and types.',
       position: 1,
       courseId: course1.id,
+      isPreview: true,
     },
   });
 
@@ -112,6 +113,7 @@ async function main() {
       content: 'Learn JS functions.',
       position: 2,
       courseId: course1.id,
+      isPreview: false,
     },
   });
 
@@ -120,7 +122,7 @@ async function main() {
     data: {
       name: 'JS Basics PDF',
       lessonId: lesson1.id,
-      path: 'https://example.com/js-basics.pdf',
+      publicId: 'https://example.com/js-basics.pdf',
     },
   });
 

@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { CoursesModule } from './courses/courses.module';
 import { LessonsModule } from './lessons/lessons.module';
+import { PdfsModule } from './pdfs/pdfs.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { LessonsModule } from './lessons/lessons.module';
     CloudinaryModule,
     CoursesModule,
     LessonsModule,
+    PdfsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

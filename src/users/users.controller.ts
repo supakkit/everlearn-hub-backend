@@ -21,7 +21,6 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
-import multer from 'multer';
 
 @Controller('users')
 @ApiTags('users')
@@ -63,11 +62,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOkResponse({ type: UserResponse })
-  @UseInterceptors(
-    FileInterceptor('avatar', {
-      storage: multer.memoryStorage(),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('avatar'))
   async update(
     @Request() req: AuthRequest,
     @Body() updateUserDto: UpdateUserDto,
