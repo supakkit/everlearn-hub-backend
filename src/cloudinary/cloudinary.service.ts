@@ -69,7 +69,7 @@ export class CloudinaryService {
     if (failedUploads.length > 0) {
       // Rollback successful uploads
       await this.cloudinary.api.delete_resources(
-        successfulUploads.map((result) => result.public_id as string),
+        successfulUploads.map((result) => String(result.public_id)),
         { resource_type: fileType },
       );
       throw new BadRequestException(

@@ -34,7 +34,7 @@ export class CoursesService {
       FileType.IMAGE,
       CloudinaryFolder.COURSE_THUMBNAILS,
     );
-    const imagePublicId = uploaded.public_id as string;
+    const imagePublicId = String(uploaded.public_id);
     return this.prisma.course.create({
       data: {
         ...dtoData,
@@ -103,7 +103,7 @@ export class CoursesService {
         FileType.IMAGE,
         CloudinaryFolder.COURSE_THUMBNAILS,
       );
-      data.imagePublicId = uploaded.public_id as string;
+      data.imagePublicId = String(uploaded.public_id);
     }
 
     return this.prisma.course.update({

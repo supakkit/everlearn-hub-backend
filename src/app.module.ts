@@ -9,6 +9,8 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { CoursesModule } from './courses/courses.module';
 import { LessonsModule } from './lessons/lessons.module';
 import { PdfsModule } from './pdfs/pdfs.module';
+import { RedisService } from './redis/redis.service';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -22,8 +24,9 @@ import { PdfsModule } from './pdfs/pdfs.module';
     CoursesModule,
     LessonsModule,
     PdfsModule,
+    RedisModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, RedisService],
 })
 export class AppModule {}

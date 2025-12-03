@@ -31,7 +31,7 @@ export class PdfsService {
 
     const pdfsToCreate: Prisma.PdfCreateManyInput[] = pdfFiles.map(
       (file, index) => {
-        const publicId = uploaded[index].public_id as string;
+        const publicId = String(uploaded[index].public_id);
         const meta = metadata?.find((m) => m?.fileName === file.originalname);
 
         const fileName = path.parse(file.originalname).name;

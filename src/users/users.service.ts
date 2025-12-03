@@ -98,7 +98,7 @@ export class UsersService {
           FileType.IMAGE,
           CloudinaryFolder.AVATARS,
         );
-        data.avatarPublicId = uploaded.public_id as string;
+        data.avatarPublicId = String(uploaded.public_id);
       }
     }
 
