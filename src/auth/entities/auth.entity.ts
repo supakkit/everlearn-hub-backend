@@ -2,9 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class AuthEntity {
   constructor(login: AuthEntity) {
-    this.accessToken = login.accessToken;
+    this.success = login.success;
   }
 
   @ApiProperty()
-  accessToken: string;
+  success: boolean;
 }

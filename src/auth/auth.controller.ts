@@ -1,4 +1,11 @@
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
@@ -12,11 +19,13 @@ import { ConfigService } from '@nestjs/config';
 @ApiTags('auth')
 export class AuthController {
   private readonly isProd: boolean;
+  private readonly globalPrefix: string;
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
   ) {
     this.isProd = this.configService.get<string>('NODE_ENV') === 'production';
+    this.globalPrefix = this.configService.get<string>('BASE_URL') || '';
   }
 
   @Post('signup')
@@ -38,15 +47,23 @@ export class AuthController {
       deviceId,
     );
 
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: this.isProd,
+      sameSite: this.isProd ? 'strict' : 'lax',
+      path: '/',
+      maxAge: 15 * 60 * 1000,
+    });
+
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: this.isProd,
       sameSite: this.isProd ? 'strict' : 'lax',
-      path: '/auth/refresh',
+      path: `/${this.globalPrefix}/auth/refresh`,
       maxAge: 2 * 24 * 60 * 60 * 1000,
     });
 
-    return new AuthEntity({ accessToken });
+    return new AuthEntity({ success: true });
   }
 
   @Post('refresh')
@@ -55,25 +72,35 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const refreshToken = String(req.cookies['refreshToken']);
+    const refreshToken = req.cookies['refreshToken'] as string | undefined;
+    if (!refreshToken) throw new UnauthorizedException('Token expired');
     const { accessToken, refreshToken: newRefreshToken } =
       await this.authService.refresh(refreshToken);
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: this.isProd,
+      sameSite: this.isProd ? 'strict' : 'lax',
+      path: '/',
+      maxAge: 15 * 60 * 1000,
+    });
 
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: this.isProd,
       sameSite: this.isProd ? 'strict' : 'lax',
-      path: '/auth/refresh',
+      path: `/${this.globalPrefix}/auth/refresh`,
       maxAge: 2 * 24 * 60 * 60 * 1000,
     });
 
-    return new AuthEntity({ accessToken });
+    return new AuthEntity({ success: true });
   }
 
   @Post('logout')
   @ApiOkResponse()
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const refreshToken = String(req.cookies['refreshToken']);
+    const refreshToken = req.cookies['refreshToken'] as string | undefined;
+    if (!refreshToken) throw new UnauthorizedException('Token expired');
     await this.authService.logout(refreshToken);
 
     res.clearCookie('refreshToken', {
