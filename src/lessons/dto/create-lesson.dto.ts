@@ -21,8 +21,9 @@ export class CreateLessonDto {
 
   @ToBoolean()
   @IsBoolean()
-  @ApiProperty()
-  isPreview: boolean = false;
+  @IsOptional()
+  @ApiProperty({ required: false })
+  isPreview?: boolean = false;
 
   @IsOptional()
   @ApiProperty({ required: false, type: [CreatePdfDto] })

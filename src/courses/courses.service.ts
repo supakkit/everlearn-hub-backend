@@ -7,6 +7,7 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { CloudinaryFolder } from 'src/common/enums/cloudinary-folder.enum';
 import { Prisma } from '@prisma/client';
 import { FileType } from 'src/common/enums/cloudinary-filetype.enum';
+import { GetCoursesDto } from './dto/get-course.dto';
 
 @Injectable()
 export class CoursesService {
@@ -48,17 +49,44 @@ export class CoursesService {
     });
   }
 
-  findAll() {
-    return this.prisma.course.findMany({
-      where: { isPublished: true },
-      include: { category: true },
-    });
+  async findAll(query: GetCoursesDto) {
+    const { page: rawPage, limit: rawLimit, search, category } = query;
+    const page = Number(rawPage?.trim()) || 1;
+    const limit = Number(rawLimit?.trim()) || 10;
+
+    const filters: Prisma.CourseWhereInput = {
+      AND: [
+        { isPublished: true },
+        category && category !== 'all' ? { category: { slug: category } } : {},
+        search
+          ? {
+              OR: [
+                { title: { contains: search, mode: 'insensitive' } },
+                { description: { contains: search, mode: 'insensitive' } },
+              ],
+            }
+          : {},
+      ],
+    };
+
+    const [courses, total] = await Promise.all([
+      this.prisma.course.findMany({
+        skip: (page - 1) * limit,
+        take: limit,
+        where: filters,
+        include: { category: true },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.course.count({ where: filters }),
+    ]);
+
+    return { courses, total };
   }
 
   findOne(id: string) {
     return this.prisma.course.findUnique({
       where: { id, isPublished: true },
-      include: { category: true },
+      include: { category: true, lessons: { orderBy: { position: 'asc' } } },
     });
   }
 

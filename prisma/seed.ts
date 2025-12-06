@@ -17,6 +17,7 @@ async function main() {
       email: 'student@example.com',
       password: hashedPassword,
       role: 'STUDENT',
+      avatarPublicId: 'Gemini_Generated_Image_wdrjmjwdrjmjwdrj_x29ycb',
     },
   });
 
@@ -35,13 +36,13 @@ async function main() {
   const cat1 = await prisma.category.upsert({
     where: { slug: 'programming' },
     update: {},
-    create: { name: 'Programming', slug: 'programming', icon: 'code' },
+    create: { name: 'Programming', slug: 'programming', icon: 'CodeRounded' },
   });
 
   const cat2 = await prisma.category.upsert({
     where: { slug: 'design' },
     update: {},
-    create: { name: 'Design', slug: 'design', icon: 'design' },
+    create: { name: 'Design', slug: 'design', icon: 'DesignServicesRounded' },
   });
 
   // ----------- Tags -----------
@@ -59,13 +60,13 @@ async function main() {
 
   // ----------- Courses -----------
   const course1 = await prisma.course.upsert({
-    where: { slug: 'intro-to-js' },
+    where: { slug: 'intro-to-javascript' },
     update: {},
     create: {
       title: 'Intro to JavaScript',
-      slug: 'intro-to-js',
+      slug: 'intro-to-javascript',
       description: 'Learn JavaScript basics',
-      imagePublicId: 'https://picsum.photos/200/300',
+      imagePublicId: 'programming-course-forest-adventure_s60czu',
       isFree: true,
       isPublished: true,
       categoryId: cat1.id,
@@ -79,7 +80,7 @@ async function main() {
       title: 'Design Basics',
       slug: 'design-basics',
       description: 'Learn design fundamentals',
-      imagePublicId: 'https://picsum.photos/200/300',
+      imagePublicId: 'programming-course-learn-through-drawing_v7d9yy',
       isFree: false,
       priceBaht: 500,
       isPublished: true,
@@ -122,7 +123,7 @@ async function main() {
     data: {
       name: 'JS Basics PDF',
       lessonId: lesson1.id,
-      publicId: 'https://example.com/js-basics.pdf',
+      publicId: 'GoodCV1_r1mmjt',
     },
   });
 

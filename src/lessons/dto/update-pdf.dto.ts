@@ -1,6 +1,10 @@
-import { PartialType } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { CreatePdfDto } from './create-pdf.dto';
+import { IsOptional, IsString } from 'class-validator';
 
 export class UpdatePdfDto extends PartialType(CreatePdfDto) {
-  removePdfPublicId?: string;
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  removedPdfPublicId?: string;
 }

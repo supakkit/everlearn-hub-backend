@@ -93,7 +93,7 @@ export class LessonsService {
 
     const incomingPdfMetas = metadata ?? [];
     const removedPdfPublicIds = incomingPdfMetas
-      .map((m) => m?.removePdfPublicId)
+      .map((m) => m?.removedPdfPublicId)
       .filter((publicId) => publicId !== undefined);
 
     // Delete removed PDFs from Cloudinary + DB
@@ -102,7 +102,7 @@ export class LessonsService {
     }
 
     // Create new PDFs
-    const newPdfMetas = incomingPdfMetas.filter((m) => !m.removePdfPublicId);
+    const newPdfMetas = incomingPdfMetas.filter((m) => !m.removedPdfPublicId);
 
     if (pdfFiles) {
       await this.pdfsService.createPdfs(lesson.id, pdfFiles, newPdfMetas);

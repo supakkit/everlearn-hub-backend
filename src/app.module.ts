@@ -11,6 +11,7 @@ import { LessonsModule } from './lessons/lessons.module';
 import { PdfsModule } from './pdfs/pdfs.module';
 import { RedisService } from './redis/redis.service';
 import { RedisModule } from './redis/redis.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { RedisModule } from './redis/redis.module';
     LessonsModule,
     PdfsModule,
     RedisModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService, RedisService],

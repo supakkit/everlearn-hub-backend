@@ -12,9 +12,9 @@ export class UserResponse {
     this.role = user.role;
     this.createdAt = user.createdAt;
 
-    this.avatarUrl = user.avatarPublicId
-      ? `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/${user.avatarPublicId}`
-      : null;
+    if (user.avatarPublicId) {
+      this.avatarUrl = `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/${user.avatarPublicId}`;
+    }
   }
 
   @ApiProperty()
@@ -29,8 +29,8 @@ export class UserResponse {
   @ApiProperty({ default: $Enums.Role.STUDENT })
   role: $Enums.Role;
 
-  @ApiProperty({ required: false, nullable: true, default: null })
-  avatarUrl: string | null;
+  @ApiProperty({ required: false })
+  avatarUrl?: string;
 
   @ApiProperty()
   createdAt: Date;

@@ -19,13 +19,13 @@ import { ConfigService } from '@nestjs/config';
 @ApiTags('auth')
 export class AuthController {
   private readonly isProd: boolean;
-  private readonly globalPrefix: string;
+  private readonly GLOBAL_PREFIX: string;
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
   ) {
     this.isProd = this.configService.get<string>('NODE_ENV') === 'production';
-    this.globalPrefix = this.configService.get<string>('BASE_URL') || '';
+    this.GLOBAL_PREFIX = this.configService.get<string>('GLOBAL_PREFIX') || '';
   }
 
   @Post('signup')
@@ -59,7 +59,7 @@ export class AuthController {
       httpOnly: true,
       secure: this.isProd,
       sameSite: this.isProd ? 'strict' : 'lax',
-      path: `/${this.globalPrefix}/auth/refresh`,
+      path: `/${this.GLOBAL_PREFIX}/auth`,
       maxAge: 2 * 24 * 60 * 60 * 1000,
     });
 
@@ -89,7 +89,7 @@ export class AuthController {
       httpOnly: true,
       secure: this.isProd,
       sameSite: this.isProd ? 'strict' : 'lax',
-      path: `/${this.globalPrefix}/auth/refresh`,
+      path: `/${this.GLOBAL_PREFIX}/auth`,
       maxAge: 2 * 24 * 60 * 60 * 1000,
     });
 
@@ -100,13 +100,20 @@ export class AuthController {
   @ApiOkResponse()
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const refreshToken = req.cookies['refreshToken'] as string | undefined;
-    if (!refreshToken) throw new UnauthorizedException('Token expired');
-    await this.authService.logout(refreshToken);
+    if (refreshToken) await this.authService.logout(refreshToken);
+
+    res.clearCookie('accessToken', {
+      httpOnly: true,
+      secure: this.isProd,
+      sameSite: this.isProd ? 'strict' : 'lax',
+      path: '/',
+    });
 
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: this.isProd,
       sameSite: this.isProd ? 'strict' : 'lax',
+      path: `/${this.GLOBAL_PREFIX}/auth`,
     });
   }
 }

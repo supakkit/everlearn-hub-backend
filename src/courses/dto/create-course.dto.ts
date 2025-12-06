@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { ToBoolean } from 'src/common/transformers/boolean.transformer';
 import { ToNumber } from 'src/common/transformers/number.transformer';
 
@@ -16,8 +22,9 @@ export class CreateCourseDto {
 
   @ToBoolean()
   @IsBoolean()
+  @IsOptional()
   @ApiProperty({ default: false })
-  isFree: boolean = false;
+  isFree?: boolean = false;
 
   @ToNumber()
   @IsNumber()
@@ -27,8 +34,9 @@ export class CreateCourseDto {
 
   @ToBoolean()
   @IsBoolean()
+  @IsOptional()
   @ApiProperty({ default: false })
-  isPublished: boolean = false;
+  isPublished?: boolean = false;
 
   @IsString()
   @IsNotEmpty()

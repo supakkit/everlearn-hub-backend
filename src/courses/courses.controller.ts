@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   UploadedFile,
   NotFoundException,
+  Query,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -25,6 +26,8 @@ import {
 } from '@nestjs/swagger';
 import { CourseResponse } from './responses/course.response';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { AllCoursesResponse } from './responses/all-courses.response';
+import { GetCoursesDto } from './dto/get-course.dto';
 
 @Controller('courses')
 export class CoursesController {
@@ -52,10 +55,11 @@ export class CoursesController {
   }
 
   @Get()
-  @ApiOkResponse({ type: CourseResponse, isArray: true })
-  async findAll() {
-    const courses = await this.coursesService.findAll();
-    return courses.map((course) => new CourseResponse(course));
+  @ApiOkResponse({ type: AllCoursesResponse })
+  async findAll(@Query() query: GetCoursesDto) {
+    const { courses, total } = await this.coursesService.findAll(query);
+    const allCourses = courses.map((course) => new CourseResponse(course));
+    return new AllCoursesResponse(allCourses, total);
   }
 
   @Get(':id')
