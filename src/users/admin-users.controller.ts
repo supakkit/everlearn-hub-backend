@@ -3,12 +3,10 @@ import {
   Get,
   Body,
   Patch,
-  Delete,
   NotFoundException,
   UseGuards,
   Request,
-  UseInterceptors,
-  UploadedFile,
+  Param,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -16,49 +14,44 @@ import { ApiCookieAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { UserResponse } from './responses/user.response';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import type { AuthRequest } from 'src/common/interfaces/auth-request.interface';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { FileInterceptor } from '@nestjs/platform-express';
 
-@Controller('users')
+@Controller('admin/users')
 @ApiTags('users')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(Role.ADMIN)
 @ApiCookieAuth()
-export class UsersController {
+export class AdminUsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get('me')
+  @Get()
+  @ApiOkResponse({ type: UserResponse, isArray: true })
+  async findAll() {
+    const users = await this.usersService.findAll();
+    return users.map((user) => new UserResponse(user));
+  }
+
+  @Get(':id')
   @ApiOkResponse({ type: UserResponse })
-  async getProfile(@Request() req: AuthRequest) {
-    const user = await this.usersService.findOne(req.user.sub);
+  async findOne(@Param('id') id: string) {
+    const user = await this.usersService.findOne(id);
     if (!user) throw new NotFoundException('User not found');
     return new UserResponse(user);
   }
 
-  @Patch('me')
+  @Patch('id')
   @ApiOkResponse({ type: UserResponse })
-  @UseInterceptors(FileInterceptor('avatar'))
-  async update(
+  async updateByAdmin(
     @Request() req: AuthRequest,
     @Body() updateUserDto: UpdateUserDto,
-    @UploadedFile() avatar?: Express.Multer.File,
   ) {
-    const { role } = req.user;
-    if (role !== Role.ADMIN) {
-      delete updateUserDto.role;
-    }
-
     const user = await this.usersService.update(
       req.user.sub,
       updateUserDto,
-      role,
-      avatar,
+      req.user.role,
     );
     return new UserResponse(user);
-  }
-
-  @Delete('me')
-  @ApiOkResponse({ type: UserResponse })
-  async delete(@Request() req: AuthRequest) {
-    await this.usersService.softDelete(req.user.sub);
   }
 }

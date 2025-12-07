@@ -3,10 +3,11 @@ import { LessonsService } from './lessons.service';
 import { LessonsController } from './lessons.controller';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { PdfsModule } from 'src/pdfs/pdfs.module';
+import { AdminLessonsController } from './admin-lessons.controller';
 
 @Module({
   imports: [PrismaModule, PdfsModule],
-  controllers: [LessonsController],
+  controllers: [LessonsController, AdminLessonsController],
   providers: [LessonsService],
 })
 export class LessonsModule {}

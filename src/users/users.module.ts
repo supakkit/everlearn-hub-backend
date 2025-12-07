@@ -4,10 +4,11 @@ import { UsersController } from './users.controller';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 import { RedisModule } from 'src/redis/redis.module';
+import { AdminUsersController } from './admin-users.controller';
 
 @Module({
   imports: [PrismaModule, CloudinaryModule, RedisModule],
-  controllers: [UsersController],
+  controllers: [UsersController, AdminUsersController],
   providers: [UsersService],
   exports: [UsersService],
 })
