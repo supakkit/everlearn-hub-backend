@@ -1,9 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Category, Course, Lesson } from '@prisma/client';
-import * as dotenv from 'dotenv';
 import { PublicLesson } from './public-lesson.response';
-
-dotenv.config();
+import { getCloudinaryUrl } from 'src/common/utils/compute-url-cloudinary';
+import { FileType } from 'src/common/enums/cloudinary-filetype.enum';
 
 export class CourseResponse {
   constructor(course: Course & { category: Category; lessons?: Lesson[] }) {
@@ -14,7 +13,7 @@ export class CourseResponse {
     this.isFree = course.isFree;
     this.priceBaht = course.priceBaht;
     this.categoryName = course.category.name;
-    this.imageUrl = `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/${course.imagePublicId}`;
+    this.imageUrl = getCloudinaryUrl(FileType.IMAGE, course.imagePublicId);
 
     if (course.lessons)
       this.lessons = course.lessons.map((lesson) => new PublicLesson(lesson));

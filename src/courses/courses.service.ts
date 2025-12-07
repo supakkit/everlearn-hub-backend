@@ -149,4 +149,15 @@ export class CoursesService {
       include: { category: true },
     });
   }
+
+  countUserCompletedCourses(userId: string) {
+    return this.prisma.course.count({
+      where: {
+        enrollments: { some: { userId } },
+        lessons: {
+          every: { progresses: { some: { userId, isCompleted: true } } },
+        },
+      },
+    });
+  }
 }

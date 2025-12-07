@@ -33,7 +33,7 @@ export class RedisService implements OnModuleInit {
     else await this.redis.set(key, value);
   }
 
-  async get(key: string): Promise<string | null> {
+  get(key: string): Promise<string | null> {
     return this.redis.get(key);
   }
 
@@ -41,7 +41,15 @@ export class RedisService implements OnModuleInit {
     await this.redis.del(key);
   }
 
-  async keys(pattern: string): Promise<string[]> {
+  keys(pattern: string): Promise<string[]> {
     return this.redis.keys(pattern);
+  }
+
+  sadd(key: string, value: string) {
+    return this.redis.sadd(key, value);
+  }
+
+  scard(key: string) {
+    return this.redis.scard(key);
   }
 }

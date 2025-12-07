@@ -44,17 +44,6 @@ export class EnrollmentsController {
     return enrollments.map((enrollment) => new EnrollmentResponse(enrollment));
   }
 
-  @Get('me')
-  @UseGuards(JwtAuthGuard)
-  @ApiCookieAuth()
-  @ApiOkResponse({ type: EnrollmentResponse, isArray: true })
-  async findUserEnrollments(@Request() req: AuthRequest) {
-    const enrollments = await this.enrollmentsService.findUserEnrollments(
-      req.user.sub,
-    );
-    return enrollments.map((enrollment) => new EnrollmentResponse(enrollment));
-  }
-
   @Get(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)

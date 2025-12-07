@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { $Enums, User } from '@prisma/client';
-import * as dotenv from 'dotenv';
-
-dotenv.config();
+import { FileType } from 'src/common/enums/cloudinary-filetype.enum';
+import { getCloudinaryUrl } from 'src/common/utils/compute-url-cloudinary';
 
 export class UserResponse {
   constructor(user: User) {
@@ -13,7 +12,7 @@ export class UserResponse {
     this.createdAt = user.createdAt;
 
     if (user.avatarPublicId) {
-      this.avatarUrl = `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/${user.avatarPublicId}`;
+      this.avatarUrl = getCloudinaryUrl(FileType.IMAGE, user.avatarPublicId);
     }
   }
 

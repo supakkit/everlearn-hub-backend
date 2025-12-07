@@ -11,8 +11,5 @@ export class PdfResponse {
   description: string | null;
 
   @ApiProperty()
-  previewUrl: string;
-
-  @ApiProperty()
   downloadUrl: string;
 }

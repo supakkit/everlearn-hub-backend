@@ -104,7 +104,6 @@ export class UsersController {
   @ApiCookieAuth()
   @ApiOkResponse({ type: UserResponse })
   async delete(@Request() req: AuthRequest) {
-    const user = await this.usersService.softDelete(req.user.sub);
-    return new UserResponse(user);
+    await this.usersService.softDelete(req.user.sub);
   }
 }

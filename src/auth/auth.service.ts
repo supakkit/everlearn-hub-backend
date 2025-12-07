@@ -11,6 +11,8 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from '../common/interfaces/jwt-payload.interface';
 import { RedisService } from 'src/redis/redis.service';
 import { Role } from '@prisma/client';
+import { RedisKey } from 'src/common/utils/redis.keys';
+import { StatsService } from 'src/stats/stats.service';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +20,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly redisService: RedisService,
+    private readonly statsService: StatsService,
   ) {}
 
   private async getTokens(userId: string, role: Role, deviceId: string) {
@@ -54,7 +57,7 @@ export class AuthService {
     // Store hashed refresh token in Redis with device identifier
     const hashed = await bcrypt.hash(tokens.refreshToken, 10);
     await this.redisService.set(
-      `refresh:${user.id}:${deviceId}:${tokens.refreshToken}`,
+      RedisKey.hashedRefreshToken(user.id, deviceId, tokens.refreshToken),
       hashed,
       2 * 24 * 60 * 60, // 2 days TTL
     );
@@ -68,7 +71,7 @@ export class AuthService {
     const userId = payload.sub;
     const deviceId = payload.deviceId;
 
-    const key = `refresh:${userId}:${deviceId}:${refreshToken}`;
+    const key = RedisKey.hashedRefreshToken(userId, deviceId, refreshToken);
     const storedHash = await this.redisService.get(key);
 
     if (!storedHash) throw new ForbiddenException('Invalid refresh token');
@@ -85,10 +88,13 @@ export class AuthService {
     await this.redisService.del(key);
     const newHash = await bcrypt.hash(tokens.refreshToken, 10);
     await this.redisService.set(
-      `refresh:${user.id}:${deviceId}:${tokens.refreshToken}`,
+      RedisKey.hashedRefreshToken(user.id, deviceId, tokens.refreshToken),
       newHash,
       2 * 24 * 60 * 60, // 2 days TTL
     );
+
+    // Record user activity
+    await this.statsService.recordUserActiveDay(userId);
 
     return tokens;
   }
@@ -100,12 +106,14 @@ export class AuthService {
     const deviceId = payload.deviceId;
 
     await this.redisService.del(
-      `refresh:${userId}:${deviceId}:${refreshToken}`,
+      RedisKey.hashedRefreshToken(userId, deviceId, refreshToken),
     );
   }
 
   async logoutAll(userId: string) {
-    const keys = await this.redisService.keys(`refresh:${userId}:*`);
+    const keys = await this.redisService.keys(
+      RedisKey.patternOfUserHashedRefreshTokens(userId),
+    );
     for (const key of keys) await this.redisService.del(key);
   }
 }

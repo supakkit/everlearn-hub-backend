@@ -7,6 +7,8 @@ import { Prisma, Role } from '@prisma/client';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { CloudinaryFolder } from 'src/common/enums/cloudinary-folder.enum';
 import { FileType } from 'src/common/enums/cloudinary-filetype.enum';
+import { RedisService } from 'src/redis/redis.service';
+import { RedisKey } from 'src/common/utils/redis.keys';
 
 export const roundsOfHashing = 10;
 
@@ -15,6 +17,7 @@ export class UsersService {
   constructor(
     private prisma: PrismaService,
     private cloudinaryService: CloudinaryService,
+    private redisService: RedisService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -105,10 +108,13 @@ export class UsersService {
     return this.prisma.user.update({ where: { id, isDeleted: false }, data });
   }
 
-  softDelete(id: string) {
-    return this.prisma.user.update({
+  async softDelete(id: string) {
+    await this.prisma.user.update({
       where: { id, isDeleted: false },
       data: { isDeleted: true, deletedAt: new Date() },
     });
+
+    const keys = await this.redisService.keys(RedisKey.patternOfUserFields(id));
+    for (const key of keys) await this.redisService.del(key);
   }
 }

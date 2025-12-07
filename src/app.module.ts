@@ -13,6 +13,9 @@ import { RedisService } from './redis/redis.service';
 import { RedisModule } from './redis/redis.module';
 import { CategoriesModule } from './categories/categories.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
+import { StatsModule } from './stats/stats.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { ProgressesModule } from './progresses/progresses.module';
 
 @Module({
   imports: [
@@ -29,6 +32,9 @@ import { EnrollmentsModule } from './enrollments/enrollments.module';
     RedisModule,
     CategoriesModule,
     EnrollmentsModule,
+    StatsModule,
+    DashboardModule,
+    ProgressesModule,
   ],
   controllers: [AppController],
   providers: [AppService, RedisService],

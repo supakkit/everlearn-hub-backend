@@ -1,9 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import * as dotenv from 'dotenv';
 import { LessonWithPdf } from 'src/common/interfaces/lesson-with-pdf.interface';
 import { PdfResponse } from './pdf.response';
-
-dotenv.config();
+import { getCloudinaryUrl } from 'src/common/utils/compute-url-cloudinary';
+import { FileType } from 'src/common/enums/cloudinary-filetype.enum';
 
 export class LessonResponse {
   constructor(lesson: LessonWithPdf) {
@@ -18,8 +17,7 @@ export class LessonResponse {
           publicId: pdf.publicId,
           name: pdf.name,
           description: pdf?.description || null,
-          previewUrl: `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/raw/upload/${pdf.publicId}`,
-          downloadUrl: `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/raw/upload/fl_attachment/${pdf.publicId}`,
+          downloadUrl: getCloudinaryUrl(FileType.PDF, pdf.publicId),
         }))
       : null;
   }
