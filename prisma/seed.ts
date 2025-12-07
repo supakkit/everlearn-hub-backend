@@ -45,19 +45,6 @@ async function main() {
     create: { name: 'Design', slug: 'design', icon: 'DesignServicesRounded' },
   });
 
-  // ----------- Tags -----------
-  const tag1 = await prisma.tag.upsert({
-    where: { name: 'JavaScript' },
-    update: {},
-    create: { name: 'JavaScript' },
-  });
-
-  const tag2 = await prisma.tag.upsert({
-    where: { name: 'Web' },
-    update: {},
-    create: { name: 'Web' },
-  });
-
   // ----------- Courses -----------
   const course1 = await prisma.course.upsert({
     where: { slug: 'intro-to-javascript' },
@@ -86,15 +73,6 @@ async function main() {
       isPublished: true,
       categoryId: cat2.id,
     },
-  });
-
-  // ----------- Course Tags -----------
-  await prisma.courseTag.createMany({
-    data: [
-      { courseId: course1.id, tagId: tag1.id },
-      { courseId: course1.id, tagId: tag2.id },
-    ],
-    skipDuplicates: true,
   });
 
   // ----------- Lessons -----------
@@ -137,16 +115,8 @@ async function main() {
     },
   });
 
-  // ----------- User Activities -----------
-  await prisma.userActivity.create({
-    data: {
-      userId: user1.id,
-      date: new Date(),
-    },
-  });
-
   // ----------- Course Purchases -----------
-  await prisma.coursePurchase.create({
+  await prisma.enrollment.create({
     data: {
       userId: user1.id,
       courseId: course2.id,
@@ -159,8 +129,6 @@ async function main() {
     user2,
     cat1,
     cat2,
-    tag1,
-    tag2,
     course1,
     course2,
     lesson1,

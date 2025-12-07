@@ -15,7 +15,7 @@ import { LessonsService } from './lessons.service';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
 import {
-  ApiBearerAuth,
+  ApiCookieAuth,
   ApiCreatedResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
@@ -33,7 +33,7 @@ export class LessonsController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @ApiBearerAuth()
+  @ApiCookieAuth()
   @ApiCreatedResponse({ type: LessonResponse })
   @UseInterceptors(FilesInterceptor('pdfFiles', 5))
   async create(
@@ -48,7 +48,7 @@ export class LessonsController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @ApiBearerAuth()
+  @ApiCookieAuth()
   @ApiOkResponse({ type: LessonResponse, isArray: true })
   async findAll() {
     const lessons = await this.lessonsService.findAll();
@@ -58,7 +58,7 @@ export class LessonsController {
   @Get(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @ApiBearerAuth()
+  @ApiCookieAuth()
   @ApiOkResponse({ type: LessonResponse })
   async findOne(@Param('id') id: string) {
     const lesson = await this.lessonsService.findOne(id);
@@ -77,7 +77,7 @@ export class LessonsController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @ApiBearerAuth()
+  @ApiCookieAuth()
   @ApiOkResponse({ type: LessonResponse })
   @UseInterceptors(FilesInterceptor('pdfFiles', 5))
   async update(
@@ -97,7 +97,7 @@ export class LessonsController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @ApiBearerAuth()
+  @ApiCookieAuth()
   @ApiOkResponse({ type: LessonResponse })
   async remove(@Param('id') id: string) {
     const lesson = await this.lessonsService.remove(id);

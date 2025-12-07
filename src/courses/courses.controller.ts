@@ -20,7 +20,7 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import {
-  ApiBearerAuth,
+  ApiCookieAuth,
   ApiCreatedResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
@@ -36,7 +36,7 @@ export class CoursesController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @ApiBearerAuth()
+  @ApiCookieAuth()
   @ApiCreatedResponse({ type: CourseResponse })
   @UseInterceptors(FileInterceptor('courseThumbnail'))
   async create(
@@ -73,7 +73,7 @@ export class CoursesController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @ApiBearerAuth()
+  @ApiCookieAuth()
   @ApiOkResponse({ type: CourseResponse })
   @UseInterceptors(FileInterceptor('courseThumbnail'))
   async update(
@@ -92,7 +92,7 @@ export class CoursesController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @ApiBearerAuth()
+  @ApiCookieAuth()
   @ApiOkResponse({ type: CourseResponse })
   async remove(@Param('id') id: string) {
     const course = await this.coursesService.remove(id);

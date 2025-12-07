@@ -25,24 +25,14 @@ model User {
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
-  purchases         CoursePurchase[]
-  progress          Progress[]
+  enrollments       Enrollment[]
+  progresses        Progress[]
   payments          Payment[]
-  activities        UserActivity[]
 }
 
 enum Role {
   STUDENT
   ADMIN
-}
-
-model UserActivity {
-  id        String    @id @default(uuid())
-  userId    String
-  user      User      @relation(fields: [userId], references: [id])
-  date      DateTime
-
-  @@unique([userId, date])
 }
 
 model Course {
@@ -60,9 +50,8 @@ model Course {
   categoryId      String
   category        Category    @relation(fields: [categoryId], references: [id])
 
-  tags            CourseTag[]
   lessons         Lesson[]
-  purchases       CoursePurchase[]
+  enrollments     Enrollment[]
 }
 
 model Category {
@@ -72,23 +61,6 @@ model Category {
   icon      String
 
   courses   Course[]
-}
-
-model CourseTag {
-  courseId      String
-  course        Course    @relation(fields: [courseId], references: [id])
-
-  tagId         String
-  tag           Tag       @relation(fields: [tagId], references: [id])
-
-  @@id([courseId, tagId])
-}
-
-model Tag {
-  id        String    @id @default(uuid())
-  name      String    @unique
-
-  courses   CourseTag[]
 }
 
 model Lesson {
@@ -101,11 +73,11 @@ model Lesson {
   updatedAt       DateTime    @updatedAt
 
   courseId        String
-  course        Course      @relation(fields: [courseId], references: [id])
+  course          Course      @relation(fields: [courseId], references: [id])
 
   pdfs            Pdf[]
 
-  progress        Progress[]
+  progresses      Progress[]
 }
 
 model Pdf {
@@ -131,7 +103,7 @@ model Progress {
   @@unique([userId, lessonId])
 }
 
-model CoursePurchase {
+model Enrollment {
   id            String      @id @default(uuid())
   userId        String
   courseId      String

@@ -12,6 +12,7 @@ import { PdfsModule } from './pdfs/pdfs.module';
 import { RedisService } from './redis/redis.service';
 import { RedisModule } from './redis/redis.module';
 import { CategoriesModule } from './categories/categories.module';
+import { EnrollmentsModule } from './enrollments/enrollments.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { CategoriesModule } from './categories/categories.module';
     PdfsModule,
     RedisModule,
     CategoriesModule,
+    EnrollmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService, RedisService],
