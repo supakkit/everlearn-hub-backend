@@ -11,7 +11,7 @@ export class DashboardService {
 
   async findOne(id: string) {
     const [enrolledCourses, stats] = await Promise.all([
-      this.enrollmentsService.findUserEnrollments(id),
+      this.enrollmentsService.getUserEnrollments(id),
       this.statsService.getUserStats(id),
     ]);
 

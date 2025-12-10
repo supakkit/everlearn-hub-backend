@@ -1,10 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateEnrollmentDto } from './dto/update-enrollment.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProgressesService } from 'src/progresses/progresses.service';
 import { EnrolledCourseResponse } from './responses/enrolled-course.response';
-import { getCloudinaryUrl } from 'src/common/utils/compute-url-cloudinary';
-import { FileType } from 'src/common/enums/cloudinary-filetype.enum';
 
 @Injectable()
 export class EnrollmentsService {
@@ -34,40 +32,54 @@ export class EnrollmentsService {
     return this.prisma.enrollment.delete({ where: { id } });
   }
 
-  async findUserEnrollments(userId: string) {
+  async getUserEnrollment(userId: string, courseId: string) {
+    const enrollment = await this.prisma.enrollment.findUnique({
+      where: {
+        userId_courseId: { userId, courseId },
+      },
+      include: {
+        course: {
+          include: {
+            _count: { select: { lessons: true } },
+          },
+        },
+      },
+    });
+
+    if (!enrollment) {
+      throw new NotFoundException('You are not enrolled in this course.');
+    }
+
+    const completedLessons =
+      await this.progressesService.getCompletedLessonInCourse(
+        userId,
+        enrollment.courseId,
+      );
+
+    return { ...enrollment, completedLessons };
+  }
+
+  async getUserEnrollments(userId: string) {
     const enrollments = await this.prisma.enrollment.findMany({
       where: { userId },
       include: {
         course: {
-          include: { lessons: true, _count: { select: { lessons: true } } },
+          include: {
+            _count: { select: { lessons: true } },
+          },
         },
       },
     });
 
     const result: EnrolledCourseResponse[] = [];
     for (const e of enrollments) {
-      const totalLessons = e.course._count.lessons;
-
-      const lessonIds = e.course.lessons.map((lesson) => lesson.id);
       const completedLessons =
-        await this.progressesService.countCompletedLessonInCourse(
+        await this.progressesService.getCompletedLessonInCourse(
           userId,
-          lessonIds,
+          e.courseId,
         );
 
-      const progress =
-        totalLessons === 0
-          ? 0
-          : Math.floor((completedLessons / totalLessons) * 100);
-
-      result.push({
-        courseId: e.course.id,
-        title: e.course.title,
-        thumbnail: getCloudinaryUrl(FileType.IMAGE, e.course.imagePublicId),
-        totalLessons,
-        completedLessons,
-        progressPercentage: progress,
-      });
+      result.push(new EnrolledCourseResponse({ ...e, completedLessons }));
     }
 
     return result;

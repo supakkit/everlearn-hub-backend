@@ -10,6 +10,7 @@ import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CourseResponse } from './responses/course.response';
 import { AllCoursesResponse } from './responses/all-courses.response';
 import { GetCoursesDto } from './dto/get-course.dto';
+import { CourseWithLessonResponse } from './responses/course-with-lessons.response';
 
 @Controller('courses')
 @ApiTags('courses')
@@ -25,10 +26,10 @@ export class CoursesController {
   }
 
   @Get(':id')
-  @ApiOkResponse({ type: CourseResponse })
+  @ApiOkResponse({ type: CourseWithLessonResponse })
   async findOne(@Param('id') id: string) {
-    const course = await this.coursesService.findOne(id);
+    const course = await this.coursesService.findOneWithLessons(id);
     if (!course) throw new NotFoundException('Course not found');
-    return new CourseResponse(course);
+    return new CourseWithLessonResponse(course);
   }
 }

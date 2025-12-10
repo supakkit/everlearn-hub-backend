@@ -9,5 +9,6 @@ import { AdminLessonsController } from './admin-lessons.controller';
   imports: [PrismaModule, PdfsModule],
   controllers: [LessonsController, AdminLessonsController],
   providers: [LessonsService],
+  exports: [LessonsService],
 })
 export class LessonsModule {}

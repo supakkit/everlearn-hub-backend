@@ -16,7 +16,6 @@ import { ApiCookieAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { UserResponse } from './responses/user.response';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import type { AuthRequest } from 'src/common/interfaces/auth-request.interface';
-import { Role } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('users')
@@ -36,22 +35,17 @@ export class UsersController {
 
   @Patch('me')
   @ApiOkResponse({ type: UserResponse })
-  @UseInterceptors(FileInterceptor('avatar'))
+  @UseInterceptors(FileInterceptor('avatarFile'))
   async update(
     @Request() req: AuthRequest,
     @Body() updateUserDto: UpdateUserDto,
-    @UploadedFile() avatar?: Express.Multer.File,
+    @UploadedFile() avatarFile?: Express.Multer.File,
   ) {
-    const { role } = req.user;
-    if (role !== Role.ADMIN) {
-      delete updateUserDto.role;
-    }
-
     const user = await this.usersService.update(
       req.user.sub,
       updateUserDto,
-      role,
-      avatar,
+      req.user.role,
+      avatarFile,
     );
     return new UserResponse(user);
   }

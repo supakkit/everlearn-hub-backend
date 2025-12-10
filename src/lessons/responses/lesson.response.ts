@@ -1,8 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { LessonWithPdf } from 'src/common/interfaces/lesson-with-pdf.interface';
 import { PdfResponse } from './pdf.response';
 import { getCloudinaryUrl } from 'src/common/utils/compute-url-cloudinary';
 import { FileType } from 'src/common/enums/cloudinary-filetype.enum';
+import { Lesson, Pdf } from '@prisma/client';
+
+export interface LessonWithPdf extends Lesson {
+  pdfs?: Pdf[];
+}
 
 export class LessonResponse {
   constructor(lesson: LessonWithPdf) {

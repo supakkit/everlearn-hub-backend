@@ -14,20 +14,20 @@ datasource db {
 }
 
 model User {
-  id                String    @id @default(uuid())
-  email             String    @unique
-  password          String
-  name              String
-  role              Role      @default(STUDENT)
-  avatarPublicId    String?
-  isDeleted         Boolean   @default(false)
-  deletedAt         DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  id             String    @id @default(uuid())
+  email          String    @unique
+  password       String
+  name           String
+  role           Role      @default(STUDENT)
+  avatarPublicId String?
+  isDeleted      Boolean   @default(false)
+  deletedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  enrollments       Enrollment[]
-  progresses        Progress[]
-  payments          Payment[]
+  enrollments Enrollment[]
+  progresses  Progress[]
+  payments    Payment[]
 }
 
 enum Role {
@@ -36,103 +36,103 @@ enum Role {
 }
 
 model Course {
-  id              String      @id @default(uuid())
-  title           String
-  slug            String      @unique
-  description     String
-  imagePublicId   String
-  isFree          Boolean     @default(false)
-  priceBaht       Int         @default(0)
-  isPublished     Boolean     @default(false)
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id            String   @id @default(uuid())
+  title         String
+  slug          String   @unique
+  description   String
+  imagePublicId String
+  isFree        Boolean  @default(false)
+  priceBaht     Int      @default(0)
+  isPublished   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  categoryId      String
-  category        Category    @relation(fields: [categoryId], references: [id])
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
 
-  lessons         Lesson[]
-  enrollments     Enrollment[]
+  lessons     Lesson[]
+  enrollments Enrollment[]
 }
 
 model Category {
-  id        String    @id @default(uuid())
-  name      String    @unique
-  slug      String    @unique
-  icon      String
+  id   String @id @default(uuid())
+  name String @unique
+  slug String @unique
+  icon String
 
-  courses   Course[]
+  courses Course[]
 }
 
 model Lesson {
-  id              String      @id @default(uuid())
-  title           String
-  content         String
-  position        Int         @default(0)
-  isPreview       Boolean     @default(false)
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  position  Int      @default(0)
+  isPreview Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  courseId        String
-  course          Course      @relation(fields: [courseId], references: [id])
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id])
 
-  pdfs            Pdf[]
+  pdfs Pdf[]
 
-  progresses      Progress[]
+  progresses Progress[]
 }
 
 model Pdf {
-  id            String      @id @default(uuid())
-  name          String
-  description   String?
-  lessonId      String
-  lesson        Lesson      @relation(fields: [lessonId], references: [id])
-  publicId      String
-  createdAt     DateTime    @default(now())
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  lessonId    String
+  lesson      Lesson   @relation(fields: [lessonId], references: [id])
+  publicId    String
+  createdAt   DateTime @default(now())
 }
 
 model Progress {
-  id            String      @id @default(uuid())
-  userId        String
-  lessonId      String
-  isCompleted   Boolean     @default(false)
-  completedAt   DateTime?
+  id          String    @id @default(uuid())
+  userId      String
+  lessonId    String
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
 
-  user          User        @relation(fields: [userId], references: [id])
-  lesson        Lesson      @relation(fields: [lessonId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+  lesson Lesson @relation(fields: [lessonId], references: [id])
 
   @@unique([userId, lessonId])
 }
 
 model Enrollment {
-  id            String      @id @default(uuid())
-  userId        String
-  courseId      String
-  paid          Boolean     @default(false)
-  paidAt        DateTime?
-  createdAt     DateTime    @default(now())
+  id        String    @id @default(uuid())
+  userId    String
+  courseId  String
+  paid      Boolean   @default(false)
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
 
-  user          User        @relation(fields: [userId], references: [id])
-  course        Course      @relation(fields: [courseId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
 
   @@unique([userId, courseId])
 }
 
 model Payment {
-  id                      String     @id  @default(uuid())
-  userId                  String?
-  stripePaymentIntentId   String?
-  stripeInvoiceId         String?
-  amount                  Int?
-  currency                String?
-  status                  String?
-  createdAt               DateTime  @default(now())
+  id                    String   @id @default(uuid())
+  userId                String?
+  stripePaymentIntentId String?
+  stripeInvoiceId       String?
+  amount                Int?
+  currency              String?
+  status                String?
+  createdAt             DateTime @default(now())
 
-  user                    User?     @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
 }
 
 model StripeEvent {
-  id              Int       @id @default(autoincrement())
-  stripeEventId   String    @unique
-  processed       Boolean   @default(false)
-  createdAt       DateTime  @default(now())
+  id            Int      @id @default(autoincrement())
+  stripeEventId String   @unique
+  processed     Boolean  @default(false)
+  createdAt     DateTime @default(now())
 }

@@ -83,7 +83,7 @@ export class CoursesService {
     return { courses, total };
   }
 
-  findOne(id: string) {
+  findOneWithLessons(id: string) {
     return this.prisma.course.findUnique({
       where: { id, isPublished: true },
       include: { category: true, lessons: { orderBy: { position: 'asc' } } },

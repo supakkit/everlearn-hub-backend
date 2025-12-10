@@ -41,14 +41,15 @@ export class AdminUsersController {
     return new UserResponse(user);
   }
 
-  @Patch('id')
+  @Patch(':id')
   @ApiOkResponse({ type: UserResponse })
   async updateByAdmin(
+    @Param('id') id: string,
     @Request() req: AuthRequest,
     @Body() updateUserDto: UpdateUserDto,
   ) {
     const user = await this.usersService.update(
-      req.user.sub,
+      id,
       updateUserDto,
       req.user.role,
     );

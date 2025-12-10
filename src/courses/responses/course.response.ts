@@ -1,11 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Category, Course, Lesson } from '@prisma/client';
-import { PublicLesson } from './public-lesson.response';
+import { Category, Course } from '@prisma/client';
 import { getCloudinaryUrl } from 'src/common/utils/compute-url-cloudinary';
 import { FileType } from 'src/common/enums/cloudinary-filetype.enum';
 
 export class CourseResponse {
-  constructor(course: Course & { category: Category; lessons?: Lesson[] }) {
+  constructor(course: Course & { category: Category }) {
     this.id = course.id;
     this.title = course.title;
     this.slug = course.slug;
@@ -14,9 +13,6 @@ export class CourseResponse {
     this.priceBaht = course.priceBaht;
     this.categoryName = course.category.name;
     this.imageUrl = getCloudinaryUrl(FileType.IMAGE, course.imagePublicId);
-
-    if (course.lessons)
-      this.lessons = course.lessons.map((lesson) => new PublicLesson(lesson));
   }
 
   @ApiProperty()
@@ -42,7 +38,4 @@ export class CourseResponse {
 
   @ApiProperty()
   imageUrl: string;
-
-  @ApiProperty({ required: false, type: PublicLesson, isArray: true })
-  lessons?: PublicLesson[];
 }

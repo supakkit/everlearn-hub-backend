@@ -82,6 +82,14 @@ export class UsersService {
       );
     }
 
+    if (updateUserDto.email) {
+      const existingUser = await this.prisma.user.findUnique({
+        where: { email: updateUserDto.email },
+      });
+
+      if (existingUser) throw new ConflictException('Email is already in use');
+    }
+
     if (avatar || deleteAvatar) {
       const currentUser = await this.prisma.user.findUnique({
         where: { id, isDeleted: false },

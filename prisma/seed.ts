@@ -119,7 +119,7 @@ async function main() {
   await prisma.enrollment.create({
     data: {
       userId: user1.id,
-      courseId: course2.id,
+      courseId: course1.id,
       paid: false,
     },
   });
