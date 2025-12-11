@@ -18,6 +18,7 @@ import {
 import type { AuthRequest } from 'src/common/interfaces/auth-request.interface';
 import { RedirectCheckoutResponse } from './responses/redirect-checkout.response';
 import { CheckoutSessionResponse } from './responses/checkout-session.response';
+import { FreeCourseCheckoutResponse } from './responses/free-course-checkout.response';
 
 @Controller('payments')
 @UseGuards(JwtAuthGuard)
@@ -31,11 +32,24 @@ export class PaymentsController {
     @Body() createPaymentDto: CreatePaymentDto,
     @Request() req: AuthRequest,
   ) {
-    const payment = await this.paymentsService.createCheckoutSession(
+    const checkoutSession = await this.paymentsService.createCheckoutSession(
       req.user.sub,
       createPaymentDto,
     );
-    return new RedirectCheckoutResponse(payment);
+    return new RedirectCheckoutResponse(checkoutSession);
+  }
+
+  @Post('free-enroll')
+  @ApiCreatedResponse({ type: FreeCourseCheckoutResponse })
+  async enrollFreeCourse(
+    @Body() createPaymentDto: CreatePaymentDto,
+    @Request() req: AuthRequest,
+  ) {
+    const checkoutSession = await this.paymentsService.enrollFreeCourse(
+      req.user.sub,
+      createPaymentDto,
+    );
+    return new FreeCourseCheckoutResponse(checkoutSession);
   }
 
   @Get('checkout-session/:sessionId')

@@ -111,4 +111,34 @@ export class PaymentsService {
       amountPaid: (session.amount_total ?? 0) / 100,
     };
   }
+
+  async enrollFreeCourse(userId: string, createPaymentDto: CreatePaymentDto) {
+    const course = await this.prisma.course.findUnique({
+      where: { id: createPaymentDto.courseId },
+    });
+
+    if (!course) throw new NotFoundException('Course not found');
+    if (!course.isFree) throw new BadRequestException('Course is not free');
+
+    await this.prisma.enrollment.upsert({
+      where: {
+        userId_courseId: {
+          userId,
+          courseId: course.id,
+        },
+      },
+      create: {
+        userId,
+        courseId: course.id,
+        paid: false,
+        paidAt: null,
+      },
+      update: {},
+    });
+
+    return {
+      success: true,
+      courseId: course.id,
+    };
+  }
 }
