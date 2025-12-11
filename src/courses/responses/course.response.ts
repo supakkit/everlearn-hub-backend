@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Category, Course } from '@prisma/client';
-import { getCloudinaryUrl } from 'src/common/utils/compute-url-cloudinary';
+import { getCloudinaryUrl } from 'src/common/utils/getCloudinaryUrl';
 import { FileType } from 'src/common/enums/cloudinary-filetype.enum';
 
 export class CourseResponse {

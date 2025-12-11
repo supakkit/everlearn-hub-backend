@@ -3,9 +3,12 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
+import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    rawBody: true,
+  });
 
   const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
@@ -14,6 +17,10 @@ async function bootstrap() {
     credentials: true,
   });
 
+  const GLOBAL_PREFIX = process.env.GLOBAL_PREFIX || '';
+  app.setGlobalPrefix(GLOBAL_PREFIX);
+  app.use(`${GLOBAL_PREFIX}/stripe/webhook`, bodyParser.raw({ type: '*/*' }));
+
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -21,8 +28,6 @@ async function bootstrap() {
     }),
   );
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-  const GLOBAL_PREFIX = process.env.GLOBAL_PREFIX || '';
-  app.setGlobalPrefix(GLOBAL_PREFIX);
   app.use(cookieParser());
 
   const config = new DocumentBuilder()

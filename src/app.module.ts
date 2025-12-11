@@ -16,6 +16,8 @@ import { EnrollmentsModule } from './enrollments/enrollments.module';
 import { StatsModule } from './stats/stats.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ProgressesModule } from './progresses/progresses.module';
+import { PaymentsModule } from './payments/payments.module';
+import { StripeModule } from './stripe/stripe.module';
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import { ProgressesModule } from './progresses/progresses.module';
     StatsModule,
     DashboardModule,
     ProgressesModule,
+    PaymentsModule,
+    StripeModule,
   ],
   controllers: [AppController],
   providers: [AppService, RedisService],

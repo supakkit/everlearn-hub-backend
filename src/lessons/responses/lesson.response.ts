@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PdfResponse } from './pdf.response';
-import { getCloudinaryUrl } from 'src/common/utils/compute-url-cloudinary';
+import { getCloudinaryUrl } from 'src/common/utils/getCloudinaryUrl';
 import { FileType } from 'src/common/enums/cloudinary-filetype.enum';
 import { Lesson, Pdf } from '@prisma/client';
 
@@ -44,6 +44,6 @@ export class LessonResponse {
   @ApiProperty()
   isPreview: boolean;
 
-  @ApiProperty({ required: false, nullable: true, type: [PdfResponse] })
+  @ApiProperty({ nullable: true, type: [PdfResponse] })
   pdfs: PdfResponse[] | null;
 }

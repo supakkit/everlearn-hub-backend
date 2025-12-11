@@ -7,7 +7,7 @@ export class PdfResponse {
   @ApiProperty()
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, nullable: true })
   description: string | null;
 
   @ApiProperty()

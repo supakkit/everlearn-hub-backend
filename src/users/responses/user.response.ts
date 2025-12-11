@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { $Enums, User } from '@prisma/client';
 import { FileType } from 'src/common/enums/cloudinary-filetype.enum';
-import { getCloudinaryUrl } from 'src/common/utils/compute-url-cloudinary';
+import { getCloudinaryUrl } from 'src/common/utils/getCloudinaryUrl';
 
 export class UserResponse {
   constructor(user: User) {

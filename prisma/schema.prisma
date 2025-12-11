@@ -14,20 +14,21 @@ datasource db {
 }
 
 model User {
-  id             String    @id @default(uuid())
-  email          String    @unique
-  password       String
-  name           String
-  role           Role      @default(STUDENT)
-  avatarPublicId String?
-  isDeleted      Boolean   @default(false)
-  deletedAt      DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id                String    @id @default(uuid())
+  email             String    @unique
+  password          String
+  name              String
+  role              Role      @default(STUDENT)
+  avatarPublicId    String?
+  isDeleted         Boolean   @default(false)
+  deletedAt         DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  stripeCustomerId  String?
 
-  enrollments Enrollment[]
-  progresses  Progress[]
-  payments    Payment[]
+  enrollments       Enrollment[]
+  progresses        Progress[]
+  payments          Payment[]
 }
 
 enum Role {
