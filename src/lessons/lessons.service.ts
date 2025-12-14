@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { PdfsService } from 'src/pdfs/pdfs.service';
 import { CreatePdfDto } from './dto/create-pdf.dto';
 import { UpdatePdfDto } from './dto/update-pdf.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class LessonsService {
@@ -127,5 +128,20 @@ export class LessonsService {
 
     await this.pdfsService.deletePdfs(lesson.pdfs.map((pdf) => pdf.publicId));
     return await this.prisma.lesson.delete({ where: { id } });
+  }
+
+  async removeByCourse(courseId: string, tx: Prisma.TransactionClient) {
+    const lessons = await tx.lesson.findMany({
+      where: { courseId },
+      include: { pdfs: true },
+    });
+
+    for (const lesson of lessons) {
+      await this.pdfsService.deletePdfs(lesson.pdfs.map((pdf) => pdf.publicId));
+    }
+
+    await tx.lesson.deleteMany({
+      where: { courseId },
+    });
   }
 }

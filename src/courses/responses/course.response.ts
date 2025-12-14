@@ -11,8 +11,11 @@ export class CourseResponse {
     this.description = course.description;
     this.isFree = course.isFree;
     this.priceBaht = course.priceBaht;
+    this.isPublished = course.isPublished;
     this.categoryName = course.category.name;
+    this.categoryId = course.categoryId;
     this.imageUrl = getCloudinaryUrl(FileType.IMAGE, course.imagePublicId);
+    this.createdAt = course.createdAt;
   }
 
   @ApiProperty()
@@ -34,8 +37,17 @@ export class CourseResponse {
   priceBaht: number;
 
   @ApiProperty()
+  isPublished: boolean;
+
+  @ApiProperty()
   categoryName: string;
 
   @ApiProperty()
+  categoryId: string;
+
+  @ApiProperty()
   imageUrl: string;
+
+  @ApiProperty()
+  createdAt: Date;
 }

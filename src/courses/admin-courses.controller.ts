@@ -9,6 +9,8 @@ import {
   UseInterceptors,
   UploadedFile,
   NotFoundException,
+  Query,
+  Get,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -25,6 +27,9 @@ import {
 } from '@nestjs/swagger';
 import { CourseResponse } from './responses/course.response';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CourseWithLessonResponse } from './responses/course-with-lessons.response';
+import { GetCoursesDto } from './dto/get-course.dto';
+import { AllCoursesWithLessonsResponse } from './responses/all-courses-with-lessons.response';
 
 @Controller('admin/courses')
 @ApiTags('courses')
@@ -36,34 +41,50 @@ export class AdminCoursesController {
 
   @Post()
   @ApiCreatedResponse({ type: CourseResponse })
-  @UseInterceptors(FileInterceptor('courseThumbnail'))
+  @UseInterceptors(FileInterceptor('imageFile'))
   async create(
     @Body() createCourseDto: CreateCourseDto,
-    @UploadedFile() courseThumbnail: Express.Multer.File,
+    @UploadedFile() imageFile: Express.Multer.File,
   ) {
-    if (!courseThumbnail) {
+    if (!imageFile) {
       throw new NotFoundException('The course thumbnail is required');
     }
 
-    const course = await this.coursesService.create(
-      createCourseDto,
-      courseThumbnail,
-    );
+    const course = await this.coursesService.create(createCourseDto, imageFile);
     return new CourseResponse(course);
+  }
+
+  @Get()
+  @ApiOkResponse({ type: AllCoursesWithLessonsResponse })
+  async findAllWithLessons(@Query() query: GetCoursesDto) {
+    const { courses, total } =
+      await this.coursesService.findAllWithLessons(query);
+    const allCourses = courses.map(
+      (course) => new CourseWithLessonResponse(course),
+    );
+    return new AllCoursesWithLessonsResponse(allCourses, total);
+  }
+
+  @Get(':id')
+  @ApiOkResponse({ type: CourseWithLessonResponse })
+  async findOne(@Param('id') id: string) {
+    const course = await this.coursesService.findOneWithLessonsByAdmin(id);
+    if (!course) throw new NotFoundException('Course not found');
+    return new CourseWithLessonResponse(course);
   }
 
   @Patch(':id')
   @ApiOkResponse({ type: CourseResponse })
-  @UseInterceptors(FileInterceptor('courseThumbnail'))
+  @UseInterceptors(FileInterceptor('imageFile'))
   async update(
     @Param('id') id: string,
     @Body() updateCourseDto: UpdateCourseDto,
-    @UploadedFile() courseThumbnail?: Express.Multer.File,
+    @UploadedFile() imageFile?: Express.Multer.File,
   ) {
     const course = await this.coursesService.update(
       id,
       updateCourseDto,
-      courseThumbnail,
+      imageFile,
     );
     return new CourseResponse(course);
   }
@@ -71,7 +92,7 @@ export class AdminCoursesController {
   @Delete(':id')
   @ApiOkResponse({ type: CourseResponse })
   async remove(@Param('id') id: string) {
-    const course = await this.coursesService.remove(id);
+    const course = await this.coursesService.removeCourse(id);
     return new CourseResponse(course);
   }
 }
