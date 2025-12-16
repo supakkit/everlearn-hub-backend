@@ -30,6 +30,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CourseWithLessonResponse } from './responses/course-with-lessons.response';
 import { GetCoursesDto } from './dto/get-course.dto';
 import { AllCoursesWithLessonsResponse } from './responses/all-courses-with-lessons.response';
+import { ReorderLessonsDto } from 'src/lessons/dto/reorder-lessons.dto';
+import { OverviewLesson } from 'src/lessons/responses/overview-lesson.response';
 
 @Controller('admin/courses')
 @ApiTags('courses')
@@ -71,6 +73,19 @@ export class AdminCoursesController {
     const course = await this.coursesService.findOneWithLessonsByAdmin(id);
     if (!course) throw new NotFoundException('Course not found');
     return new CourseWithLessonResponse(course);
+  }
+
+  @Patch(':id/lessons/reorder')
+  @ApiOkResponse({ type: OverviewLesson, isArray: true })
+  async reorderLessons(
+    @Param('id') id: string,
+    @Body() reorderLessonsDto: ReorderLessonsDto,
+  ) {
+    const lessons = await this.coursesService.reorderLessons(
+      id,
+      reorderLessonsDto,
+    );
+    return lessons.map((lesson) => new OverviewLesson(lesson));
   }
 
   @Patch(':id')

@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CreatePdfDto } from './create-pdf.dto';
+// import { CreatePdfDto } from './create-pdf.dto';
 import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ToBoolean } from 'src/common/transformers/boolean.transformer';
+import { CreatePdfDto } from './create-pdf.dto';
 
 export class CreateLessonDto {
   @IsString()
@@ -26,6 +27,6 @@ export class CreateLessonDto {
   isPreview?: boolean = false;
 
   @IsOptional()
-  @ApiProperty({ required: false, type: [CreatePdfDto] })
-  pdfs?: string;
+  @ApiProperty({ required: false, type: CreatePdfDto, isArray: true })
+  createPdfs?: string;
 }

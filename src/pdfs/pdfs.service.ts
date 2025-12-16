@@ -1,11 +1,10 @@
-import path from 'node:path';
 import { Injectable } from '@nestjs/common';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreatePdfDto } from '../lessons/dto/create-pdf.dto';
-import { Prisma } from '@prisma/client';
 import { FileType } from 'src/common/enums/cloudinary-filetype.enum';
 import { CloudinaryFolder } from 'src/common/enums/cloudinary-folder.enum';
+import { UpdatePdfDto } from 'src/lessons/dto/update-pdf.dto';
+import { CreatePdfDto } from 'src/lessons/dto/create-pdf.dto';
 
 @Injectable()
 export class PdfsService {
@@ -16,36 +15,43 @@ export class PdfsService {
 
   async createPdfs(
     lessonId: string,
+    createDtos: CreatePdfDto[],
     pdfFiles: Express.Multer.File[],
-    metadata?: CreatePdfDto[],
   ) {
     if (!pdfFiles || pdfFiles.length === 0) {
       return;
     }
 
-    const uploaded = await this.cloudinaryService.uploadMultipleFiles(
-      pdfFiles,
-      FileType.PDF,
-      CloudinaryFolder.LESSON_PDFS,
-    );
+    for (let i = 0; i < pdfFiles.length; i++) {
+      const upload = await this.cloudinaryService.uploadSingleFile(
+        pdfFiles[i],
+        FileType.PDF,
+        CloudinaryFolder.LESSON_PDFS,
+      );
 
-    const pdfsToCreate: Prisma.PdfCreateManyInput[] = pdfFiles.map(
-      (file, index) => {
-        const publicId = String(uploaded[index].public_id);
-        const meta = metadata?.find((m) => m?.fileName === file.originalname);
-
-        const fileName = path.parse(file.originalname).name;
-        return {
-          name: meta?.name || fileName,
-          description: meta?.description,
-          publicId,
+      await this.prisma.pdf.create({
+        data: {
           lessonId,
-        };
-      },
-    );
+          name: createDtos[i].name,
+          description: createDtos[i].description,
+          publicId: upload.public_id as string,
+        },
+      });
+    }
+  }
 
-    await this.prisma.pdf.createMany({ data: pdfsToCreate });
-    return pdfsToCreate;
+  async updatePdfMetadata(dtos: UpdatePdfDto[]) {
+    await Promise.all(
+      dtos.map((dto) =>
+        this.prisma.pdf.update({
+          where: { id: dto.id },
+          data: {
+            name: dto.name,
+            description: dto.description,
+          },
+        }),
+      ),
+    );
   }
 
   async deletePdfs(publicId: string[]) {

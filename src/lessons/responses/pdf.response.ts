@@ -2,6 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class PdfResponse {
   @ApiProperty()
+  id: string;
+
+  @ApiProperty()
   publicId: string;
 
   @ApiProperty()

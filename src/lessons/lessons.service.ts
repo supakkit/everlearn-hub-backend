@@ -3,9 +3,11 @@ import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PdfsService } from 'src/pdfs/pdfs.service';
-import { CreatePdfDto } from './dto/create-pdf.dto';
 import { UpdatePdfDto } from './dto/update-pdf.dto';
 import { Prisma } from '@prisma/client';
+import { CreatePdfDto } from './dto/create-pdf.dto';
+import { RemovePdfDto } from './dto/remove-pdf.dto';
+import { ReorderLessonsDto } from './dto/reorder-lessons.dto';
 
 @Injectable()
 export class LessonsService {
@@ -18,7 +20,11 @@ export class LessonsService {
     createLessonDto: CreateLessonDto,
     pdfFiles?: Express.Multer.File[],
   ) {
-    const { pdfs, ...dtoData } = createLessonDto;
+    const { createPdfs: createPdfsRaw, ...lessonData } = createLessonDto;
+
+    const createPdfs = createPdfsRaw
+      ? (JSON.parse(createPdfsRaw) as CreatePdfDto[])
+      : [];
 
     const currentLastPosition = await this.prisma.lesson.findFirst({
       where: { courseId: createLessonDto.courseId },
@@ -31,22 +37,24 @@ export class LessonsService {
       : 1;
 
     const lesson = await this.prisma.lesson.create({
-      data: { ...dtoData, position: nextPosition },
+      data: { ...lessonData, position: nextPosition },
     });
 
-    if (!pdfFiles || pdfFiles.length === 0) {
+    if (
+      createPdfs.length &&
+      pdfFiles &&
+      pdfFiles.length === createPdfs.length
+    ) {
+      await this.pdfsService.createPdfs(lesson.id, createPdfs, pdfFiles);
+    } else {
       return lesson;
     }
 
-    let metadata: CreatePdfDto[] | undefined;
-    if (pdfs) metadata = JSON.parse(pdfs) as CreatePdfDto[];
-    const createdPdfs = await this.pdfsService.createPdfs(
-      lesson.id,
-      pdfFiles,
-      metadata,
-    );
-    const lessonWithPdfs = { ...lesson, pdfs: createdPdfs };
-    return lessonWithPdfs;
+    const lessonWithPdfs = await this.prisma.lesson.findUnique({
+      where: { id: lesson.id },
+      include: { pdfs: true },
+    });
+    return lessonWithPdfs || lesson;
   }
 
   findByCourseId(courseId: string) {
@@ -73,49 +81,58 @@ export class LessonsService {
   }
 
   async update(
-    id: string,
+    lessonId: string,
     updateLessonDto: UpdateLessonDto,
     pdfFiles?: Express.Multer.File[],
   ) {
-    const { pdfs, ...dtoData } = updateLessonDto;
+    const {
+      createPdfs: createPdfsRaw,
+      updatePdfs: updatePdfsRaw,
+      removePdfs: removePdfsRaw,
+      ...lessonData
+    } = updateLessonDto;
+
+    const createPdfs = createPdfsRaw
+      ? (JSON.parse(createPdfsRaw) as CreatePdfDto[])
+      : [];
+    const updatePdfs = updatePdfsRaw
+      ? (JSON.parse(updatePdfsRaw) as UpdatePdfDto[])
+      : [];
+    const removePdfs = removePdfsRaw
+      ? (JSON.parse(removePdfsRaw) as RemovePdfDto[])
+      : [];
 
     const lesson = await this.prisma.lesson.update({
-      where: { id },
-      data: dtoData,
+      where: { id: lessonId },
+      data: lessonData,
       include: { pdfs: true },
     });
 
-    if (!pdfs && !pdfFiles) {
+    if (!createPdfs.length && !updatePdfs.length && !removePdfs.length)
       return lesson;
+
+    if (removePdfs.length) {
+      const publicIds = removePdfs.map((pdf) => pdf.publicId);
+      await this.pdfsService.deletePdfs(publicIds);
     }
 
-    let metadata: UpdatePdfDto[] | undefined;
-    if (pdfs) metadata = JSON.parse(pdfs) as UpdatePdfDto[];
-
-    const incomingPdfMetas = metadata ?? [];
-    const removedPdfPublicIds = incomingPdfMetas
-      .map((m) => m?.removedPdfPublicId)
-      .filter((publicId) => publicId !== undefined);
-
-    // Delete removed PDFs from Cloudinary + DB
-    if (removedPdfPublicIds.length > 0) {
-      await this.pdfsService.deletePdfs(removedPdfPublicIds);
+    if (updatePdfs.length) {
+      await this.pdfsService.updatePdfMetadata(updatePdfs);
     }
 
-    // Create new PDFs
-    const newPdfMetas = incomingPdfMetas.filter((m) => !m.removedPdfPublicId);
-
-    if (pdfFiles) {
-      await this.pdfsService.createPdfs(lesson.id, pdfFiles, newPdfMetas);
+    if (
+      createPdfs.length &&
+      pdfFiles &&
+      pdfFiles.length === createPdfs.length
+    ) {
+      await this.pdfsService.createPdfs(lessonId, createPdfs, pdfFiles);
     }
 
-    // Return fresh lesson with updated PDFs
-    const updatedLesson = await this.prisma.lesson.findUnique({
-      where: { id },
+    const updateLesson = await this.prisma.lesson.findUnique({
+      where: { id: lessonId },
       include: { pdfs: true },
     });
-
-    return updatedLesson ?? lesson;
+    return updateLesson || lesson;
   }
 
   async remove(id: string) {
@@ -143,5 +160,16 @@ export class LessonsService {
     await tx.lesson.deleteMany({
       where: { courseId },
     });
+  }
+
+  reorderLessons(reorderLessonsDto: ReorderLessonsDto) {
+    return this.prisma.$transaction(
+      reorderLessonsDto.items.map((item) =>
+        this.prisma.lesson.update({
+          where: { id: item.lessonId },
+          data: { position: item.position },
+        }),
+      ),
+    );
   }
 }

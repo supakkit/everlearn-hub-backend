@@ -18,6 +18,7 @@ export class LessonResponse {
     this.isPreview = lesson.isPreview;
     this.pdfs = lesson?.pdfs
       ? lesson.pdfs.map((pdf) => ({
+          id: pdf.id,
           publicId: pdf.publicId,
           name: pdf.name,
           description: pdf?.description || null,

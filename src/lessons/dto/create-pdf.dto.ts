@@ -3,9 +3,8 @@ import { IsOptional, IsString } from 'class-validator';
 
 export class CreatePdfDto {
   @IsString()
-  @IsOptional()
   @ApiProperty()
-  name?: string;
+  name: string;
 
   @IsString()
   @IsOptional()
@@ -13,7 +12,6 @@ export class CreatePdfDto {
   description?: string;
 
   @IsString()
-  @IsOptional()
   @ApiProperty()
-  fileName?: string;
+  fileName: string;
 }

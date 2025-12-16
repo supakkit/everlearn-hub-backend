@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -13,6 +14,7 @@ import { Prisma } from '@prisma/client';
 import { FileType } from 'src/common/enums/cloudinary-filetype.enum';
 import { GetCoursesDto } from './dto/get-course.dto';
 import { LessonsService } from 'src/lessons/lessons.service';
+import { ReorderLessonsDto } from 'src/lessons/dto/reorder-lessons.dto';
 
 @Injectable()
 export class CoursesService {
@@ -215,5 +217,54 @@ export class CoursesService {
         },
       },
     });
+  }
+
+  async reorderLessons(courseId: string, reorderLessonsDto: ReorderLessonsDto) {
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+      include: { lessons: { select: { id: true } } },
+    });
+
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
+
+    const existingLessonIds = course.lessons.map((lesson) => lesson.id);
+    const incomingLessonIds = reorderLessonsDto.items.map(
+      (item) => item.lessonId,
+    );
+
+    if (incomingLessonIds.length !== existingLessonIds.length) {
+      throw new BadRequestException('Lesson count mismatch');
+    }
+
+    const hasDuplicates =
+      new Set(incomingLessonIds).size !== existingLessonIds.length;
+
+    if (hasDuplicates) {
+      throw new BadRequestException('Position can not duplicate');
+    }
+
+    const isBelonged = incomingLessonIds.every((lessonId) =>
+      existingLessonIds.includes(lessonId),
+    );
+
+    if (!isBelonged) {
+      throw new BadRequestException('Lesson does not belong to course');
+    }
+
+    const incomingPositions = reorderLessonsDto.items.map(
+      (item) => item.position,
+    );
+    const sortedPositions = [...incomingPositions].sort((a, b) => a - b);
+    for (let i = 0; i < existingLessonIds.length; i++) {
+      if (sortedPositions[i] !== i + 1) {
+        throw new BadRequestException(
+          'Positions must be contiguous starting from 1',
+        );
+      }
+    }
+
+    return await this.lessonsService.reorderLessons(reorderLessonsDto);
   }
 }

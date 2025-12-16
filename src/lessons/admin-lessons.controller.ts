@@ -47,13 +47,6 @@ export class AdminLessonsController {
     return new LessonResponse(lesson);
   }
 
-  @Get()
-  @ApiOkResponse({ type: LessonResponse, isArray: true })
-  async findAll() {
-    const lessons = await this.lessonsService.findAll();
-    return lessons.map((lesson) => new LessonResponse(lesson));
-  }
-
   @Get(':id')
   @ApiOkResponse({ type: LessonResponse })
   async findOne(@Param('id') id: string) {
