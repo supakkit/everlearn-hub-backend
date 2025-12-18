@@ -9,6 +9,8 @@ import { CloudinaryFolder } from 'src/common/enums/cloudinary-folder.enum';
 import { FileType } from 'src/common/enums/cloudinary-filetype.enum';
 import { RedisService } from 'src/redis/redis.service';
 import { RedisKey } from 'src/common/utils/redis.keys';
+import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
+import { GetUsersDto } from './dto/get-users.dto';
 
 export const roundsOfHashing = 10;
 
@@ -51,8 +53,21 @@ export class UsersService {
     });
   }
 
-  findAll() {
-    return this.prisma.user.findMany({ where: { isDeleted: false } });
+  async findAll(query: GetUsersDto) {
+    const { page: rawPage, limit: rawLimit } = query;
+    const page = Number(rawPage?.trim()) || 1;
+    const limit = Number(rawLimit?.trim()) || 10;
+
+    const [users, total] = await Promise.all([
+      this.prisma.user.findMany({
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.user.count(),
+    ]);
+
+    return { users, total };
   }
 
   findOne(id: string) {
@@ -114,6 +129,13 @@ export class UsersService {
     }
 
     return this.prisma.user.update({ where: { id, isDeleted: false }, data });
+  }
+
+  async adminUpdateUser(id: string, adminUpdateUserDto: AdminUpdateUserDto) {
+    return this.prisma.user.update({
+      where: { id, isDeleted: false },
+      data: { role: adminUpdateUserDto.role },
+    });
   }
 
   async softDelete(id: string) {

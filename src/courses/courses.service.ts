@@ -12,7 +12,7 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { CloudinaryFolder } from 'src/common/enums/cloudinary-folder.enum';
 import { Prisma } from '@prisma/client';
 import { FileType } from 'src/common/enums/cloudinary-filetype.enum';
-import { GetCoursesDto } from './dto/get-course.dto';
+import { GetCoursesDto } from './dto/get-courses.dto';
 import { LessonsService } from 'src/lessons/lessons.service';
 import { ReorderLessonsDto } from 'src/lessons/dto/reorder-lessons.dto';
 

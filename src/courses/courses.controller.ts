@@ -9,7 +9,7 @@ import { CoursesService } from './courses.service';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CourseResponse } from './responses/course.response';
 import { AllCoursesResponse } from './responses/all-courses.response';
-import { GetCoursesDto } from './dto/get-course.dto';
+import { GetCoursesDto } from './dto/get-courses.dto';
 import { CourseWithLessonResponse } from './responses/course-with-lessons.response';
 
 @Controller('courses')

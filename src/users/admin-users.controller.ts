@@ -5,18 +5,19 @@ import {
   Patch,
   NotFoundException,
   UseGuards,
-  Request,
   Param,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiCookieAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { UserResponse } from './responses/user.response';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import type { AuthRequest } from 'src/common/interfaces/auth-request.interface';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from '@prisma/client';
+import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
+import { FullDetailUserResponse } from './responses/full-detail-user.response';
+import { GetUsersDto } from './dto/get-users.dto';
+import { GetFullDetailUsersResponse } from './responses/get-full-detail-users.response';
 
 @Controller('admin/users')
 @ApiTags('users')
@@ -27,32 +28,33 @@ export class AdminUsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @ApiOkResponse({ type: UserResponse, isArray: true })
-  async findAll() {
-    const users = await this.usersService.findAll();
-    return users.map((user) => new UserResponse(user));
+  @ApiOkResponse({ type: GetFullDetailUsersResponse })
+  async findAll(@Query() query: GetUsersDto) {
+    const { users, total } = await this.usersService.findAll(query);
+    return new GetFullDetailUsersResponse(
+      users.map((user) => new FullDetailUserResponse(user)),
+      total,
+    );
   }
 
   @Get(':id')
-  @ApiOkResponse({ type: UserResponse })
+  @ApiOkResponse({ type: FullDetailUserResponse })
   async findOne(@Param('id') id: string) {
     const user = await this.usersService.findOne(id);
     if (!user) throw new NotFoundException('User not found');
-    return new UserResponse(user);
+    return new FullDetailUserResponse(user);
   }
 
   @Patch(':id')
-  @ApiOkResponse({ type: UserResponse })
+  @ApiOkResponse({ type: FullDetailUserResponse })
   async updateByAdmin(
     @Param('id') id: string,
-    @Request() req: AuthRequest,
-    @Body() updateUserDto: UpdateUserDto,
+    @Body() adminUpdateUserDto: AdminUpdateUserDto,
   ) {
-    const user = await this.usersService.update(
+    const user = await this.usersService.adminUpdateUser(
       id,
-      updateUserDto,
-      req.user.role,
+      adminUpdateUserDto,
     );
-    return new UserResponse(user);
+    return new FullDetailUserResponse(user);
   }
 }
