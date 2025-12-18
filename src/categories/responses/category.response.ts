@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Category } from '@prisma/client';
 
-export class CategoryNamesResponse {
+export class CategoryResponse {
   constructor(category: Category) {
     this.id = category.id;
     this.name = category.name;
