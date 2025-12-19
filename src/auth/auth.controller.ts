@@ -14,6 +14,7 @@ import { AuthEntity } from './entities/auth.entity';
 import { LoginDto } from './dto/login.dto';
 import type { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -29,6 +30,7 @@ export class AuthController {
   }
 
   @Post('signup')
+  @Throttle({ default: { ttl: 60, limit: 5 } })
   @ApiCreatedResponse({ type: UserResponse })
   async signup(@Body() createUserDto: CreateUserDto) {
     const user = await this.authService.signup(createUserDto);
@@ -36,6 +38,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @Throttle({ default: { ttl: 60, limit: 5 } })
   @ApiOkResponse({ type: AuthEntity })
   async login(
     @Body() { email, password, deviceId }: LoginDto,
@@ -67,6 +70,7 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @Throttle({ default: { ttl: 60, limit: 20 } })
   @ApiOkResponse({ type: AuthEntity })
   async refreshToken(
     @Req() req: Request,
