@@ -1,36 +1,9 @@
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('Start seeding...');
-
-  // ----------- Users -----------
-  const hashedPassword = await bcrypt.hash('password123', 10);
-
-  const user1 = await prisma.user.upsert({
-    where: { email: 'student@example.com' },
-    update: {},
-    create: {
-      name: 'Student User',
-      email: 'student@example.com',
-      password: hashedPassword,
-      role: 'STUDENT',
-      avatarPublicId: 'Gemini_Generated_Image_wdrjmjwdrjmjwdrj_x29ycb',
-    },
-  });
-
-  const user2 = await prisma.user.upsert({
-    where: { email: 'admin@example.com' },
-    update: {},
-    create: {
-      name: 'Admin User',
-      email: 'admin@example.com',
-      password: hashedPassword,
-      role: 'ADMIN',
-    },
-  });
 
   // ----------- Categories -----------
   const cat1 = await prisma.category.upsert({
@@ -105,28 +78,7 @@ async function main() {
     },
   });
 
-  // ----------- User Progress -----------
-  await prisma.progress.create({
-    data: {
-      userId: user1.id,
-      lessonId: lesson1.id,
-      isCompleted: true,
-      completedAt: new Date(),
-    },
-  });
-
-  // ----------- Course Purchases -----------
-  await prisma.enrollment.create({
-    data: {
-      userId: user1.id,
-      courseId: course1.id,
-      paid: false,
-    },
-  });
-
   console.log({
-    user1,
-    user2,
     cat1,
     cat2,
     course1,
