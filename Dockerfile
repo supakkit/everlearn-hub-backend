@@ -22,6 +22,7 @@ ENV NODE_ENV=production
 COPY package*.json ./
 RUN npm ci --only=production
 
+COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/dist ./dist
 
 CMD ["npm", "run", "start:prod"]
