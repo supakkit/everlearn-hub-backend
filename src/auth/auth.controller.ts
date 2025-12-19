@@ -50,7 +50,7 @@ export class AuthController {
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: this.isProd,
-      sameSite: this.isProd ? 'strict' : 'lax',
+      sameSite: this.isProd ? 'none' : 'lax',
       path: '/',
       maxAge: 15 * 60 * 1000,
     });
@@ -58,7 +58,7 @@ export class AuthController {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: this.isProd,
-      sameSite: this.isProd ? 'strict' : 'lax',
+      sameSite: this.isProd ? 'none' : 'lax',
       path: `/${this.GLOBAL_PREFIX}/auth`,
       maxAge: 2 * 24 * 60 * 60 * 1000,
     });
@@ -80,7 +80,7 @@ export class AuthController {
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: this.isProd,
-      sameSite: this.isProd ? 'strict' : 'lax',
+      sameSite: this.isProd ? 'none' : 'lax',
       path: '/',
       maxAge: 15 * 60 * 1000,
     });
@@ -88,7 +88,7 @@ export class AuthController {
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: this.isProd,
-      sameSite: this.isProd ? 'strict' : 'lax',
+      sameSite: this.isProd ? 'none' : 'lax',
       path: `/${this.GLOBAL_PREFIX}/auth`,
       maxAge: 2 * 24 * 60 * 60 * 1000,
     });
@@ -105,14 +105,14 @@ export class AuthController {
     res.clearCookie('accessToken', {
       httpOnly: true,
       secure: this.isProd,
-      sameSite: this.isProd ? 'strict' : 'lax',
+      sameSite: this.isProd ? 'none' : 'lax',
       path: '/',
     });
 
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: this.isProd,
-      sameSite: this.isProd ? 'strict' : 'lax',
+      sameSite: this.isProd ? 'none' : 'lax',
       path: `/${this.GLOBAL_PREFIX}/auth`,
     });
   }
