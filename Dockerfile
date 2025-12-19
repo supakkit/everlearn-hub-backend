@@ -9,7 +9,6 @@ RUN npm ci
 COPY . .
 
 ENV PRISMA_SKIP_ENV_VALIDATION=1
-
 RUN npx prisma generate
 RUN npm run build
 
@@ -24,7 +23,5 @@ COPY package*.json ./
 RUN npm ci --only=production
 
 COPY --from=builder /app/dist ./dist
-
-RUN npx prisma generate
 
 CMD ["npm", "run", "start:prod"]
