@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import Redis, { RedisOptions } from 'ioredis';
+import Redis from 'ioredis';
 
 @Injectable()
 export class RedisService implements OnModuleInit {
@@ -10,18 +10,27 @@ export class RedisService implements OnModuleInit {
   constructor(private readonly configService: ConfigService) {}
 
   onModuleInit() {
-    const options: RedisOptions = {
-      host: this.configService.get<string>('REDIS_HOST', '127.0.0.1'),
-      port: this.configService.get<number>('REDIS_PORT', 6379),
-      password: this.configService.get<string>('REDIS_PASSWORD'),
+    // const options: RedisOptions = {
+    //   host: this.configService.get<string>('REDIS_HOST', '127.0.0.1'),
+    //   port: this.configService.get<number>('REDIS_PORT', 6379),
+    //   password: this.configService.get<string>('REDIS_PASSWORD'),
 
+    //   reconnectOnError: (err) => {
+    //     this.logger.warn(`Redis reconnect due to error: ${err.message}`);
+    //     return true;
+    //   },
+    // };
+
+    const REDIS_URL = this.configService.get<string>('REDIS_URL') || '';
+
+    // this.redis = new Redis(options);
+    this.redis = new Redis(REDIS_URL, {
       reconnectOnError: (err) => {
         this.logger.warn(`Redis reconnect due to error: ${err.message}`);
         return true;
       },
-    };
-
-    this.redis = new Redis(options);
+      maxRetriesPerRequest: 3,
+    });
 
     this.redis.on('connect', () => this.logger.log('Redis connected'));
     this.redis.on('error', (err) => this.logger.error('Redis error', err));
