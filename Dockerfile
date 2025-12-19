@@ -8,6 +8,8 @@ RUN npm ci
 
 COPY . .
 
+ENV PRISMA_SKIP_ENV_VALIDATION=1
+
 RUN npx prisma generate
 RUN npm run build
 
