@@ -25,4 +25,6 @@ RUN npm ci --only=production
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/dist ./dist
 
+RUN npx prisma generate
+
 CMD ["npm", "run", "start:prod"]
